@@ -181,7 +181,7 @@ void gf3d_vqueues_setup_device_queues(VkDevice device)
     }
     if (gf3d_vqueues.transfer_queue_family != -1)
     {
-        vkGetDeviceQueue(device, gf3d_vqueues.transfer_queue_family, 0, &gf3d_vqueues.transfer_queue);
+      //  vkGetDeviceQueue(device, gf3d_vqueues.transfer_queue_family, 0, &gf3d_vqueues.transfer_queue);
     }
 }
 

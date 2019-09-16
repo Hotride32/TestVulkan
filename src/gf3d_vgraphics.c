@@ -477,7 +477,9 @@ Bool gf3d_vgraphics_device_validate(VkPhysicalDevice device)
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
 
     slog("Device Name: %s",deviceProperties.deviceName);
+    slog("Device Type is: %i",deviceProperties.deviceType);
     slog("Dedicated GPU: %i",(deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)?1:0);
+    
     slog("apiVersion: %i",deviceProperties.apiVersion);
     slog("driverVersion: %i",deviceProperties.driverVersion);
     slog("supports Geometry Shader: %i",deviceFeatures.geometryShader);

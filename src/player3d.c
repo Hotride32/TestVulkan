@@ -1,6 +1,6 @@
 #include "player3d.h"
 #include "simple_logger.h"
-//#include "camera.h"
+#include "gf3d_camera.h"
 //#include "level.h"
 #include "gfc_input.h"
 //#include "entity_common.h"
@@ -27,6 +27,7 @@ typedef struct
     float energy,energyMax;
     int capacitors,capacitorsMax;
     int attackType;
+    
 }PlayerData;
 
 
@@ -68,55 +69,71 @@ Entity *player_spawn(Vector3D position)
 Entity *player_new(Vector3D position)
 {
     Entity *self;
-    
-    self = gf2d_entity_new();
+    //Matrix4 modelMat2;
+    self = gf3d_entity_new();
     if (!self)return NULL;
-    /*
-    gf2d_line_cpy(self->name,"player");
-    self->parent = NULL;
+    gfc_line_cpy(self->name,"player");
     
-    self->shape = gf2d_shape_rect(-16, -16, 30, 60);
-    gf2d_body_set(
+    //gf2d_line_cpy(self->name,"player");
+    //self->parent = NULL;
+    
+    self->shape = gf3d_shape_rect(-16, -16,-16, 30, 60,30);
+    gf3d_body_set(
         &self->body,
         "player",
         1,
-        WORLD_LAYER,
+        0,
+        //WORLD_LAYER
         0,
         1,
         position,
-        vector2d(0,0),
+        vector3d(0,0,0),
         10,
         1,
         0,
         &self->shape,
         self,
         NULL);
-*/
+
     //gf2d_actor_load(&self->actor,"actors/player.actor");
     //gf2d_actor_set_action(&self->actor,"idle");
 
    // self->sound[0] = gf2d_sound_load("sounds/jump_10.wav",1,-1);
 
-   
+   self->state = ES_Idle;
    
     
     vector3d_copy(self->position,position);
     
+    
+    
     vector3d_copy(self->scale,vector3d(1,1,1));
     //vector3d_set(self->scaleCenter,64,64);
-    vector3d_set(self->rotation,64,64,0);
+    vector3d_set(self->rotation,0,0,0);
    // vector2d_set(self->flip,0,0);
    // vector2d_set(self->facing,1,0);
-    self->model = gf3d_model_load_animated("dun_idle",0,56);
-    self->modelMat = modelMat2;
-    gfc_matrix_identity(self->modelMat);
-    self->bufferframe = 0;
-    self->frameCount = 0;
+    self->model = gf3d_model_load_animated("dun_idle",1,57);
     
+    self->stat = 1;
+    
+    gfc_matrix_identity(self->modelMat);
+    
+    gfc_matrix_translate(
+            self->modelMat,
+           self->position
+    );
+    
+    //self->bufferFrame = gf3d_vgraphics_render_begin();
+    //gf3d_pipeline_reset_frame(gf3d_vgraphics_get_graphics_pipeline(),self->bufferFrame);
+    
+    
+    //self->commandBuffer = gf3d_command_rendering_begin(self->bufferFrame);
+    
+   // self->frameCount = 1;
     self->think = player_think;
     self->draw = player_draw;
     self->update = player_update;
-    self->touch = player_touch;
+    //self->touch = player_touch;
     //self->damage = player_damage;
     //self->die = player_die;
     //self->free = gf3d_entity_free(self);
@@ -124,7 +141,7 @@ Entity *player_new(Vector3D position)
 
     self->data = (void*)&playerData;
     
-    self->health = self->maxHealth = 100;
+    self->health = self->healthmax = 100;
     _player = self;
    // level_add_entity(self);
     return self;
@@ -132,6 +149,23 @@ Entity *player_new(Vector3D position)
 
 void player_draw(Entity *self)
 {
+    /*
+    if (!_player)
+    {
+        slog("no player loaded");
+        return;
+    }
+    gf3d_entity_draw(self);
+    */
+    
+    self->frameCount +=0.025;
+                if (self->frameCount>=56){
+                 self->frameCount =1;
+                 
+                }
+   
+                
+    
     //additional player drawings can go here
 }
 /*
@@ -142,9 +176,33 @@ void player_activation_check(Entity *self)
 */
 void player_think(Entity *self)
 {
+    
+    
+    const Uint8 * keys;
+    Matrix4 modelMat;
+    keys = SDL_GetKeyboardState(NULL);
+    float move;
+    //self->angle = 0;
+    
+    gf3d_camera_set_view(self->modelMat);
+    
+    /*
+    self->frameCount += (Uint32) 0.025;
+                if (self->frameCount>= (Uint32) 56){
+                 self->frameCount =(Uint32) 0;   
+                }
+    */
     switch (self->state)
     {
         case ES_Idle:
+      
+            
+            
+            if(keys == NULL){
+        
+            move = 0;
+            //self->angle = 0;
+        }
             if(keys[SDL_SCANCODE_D]){
           
            
@@ -152,10 +210,63 @@ void player_think(Entity *self)
          
            move = 0.005;
            
+           player_set_position(vector3d(-move,0,0));
+           
+           //gf3d_vgraphics_rotate_camera(0.5);
+           
+           /*
+           gfc_matrix_rotate(
+                self->modelMat,
+                modelMat,
+                self->Rangle,
+                vector3d(0,1,0));
+           */
+           
+          
+           
+           /*
+           self->Langle = 0;
+           
+           if(self->Rangle > -90){
+                self->Rangle -= 45;
+                
+                gfc_matrix_rotate(
+                self->modelMat,
+                self->modelMat,
+                self->Rangle,
+                vector3d(0,1,0));
+                
+
+           }
+           else{
+            gfc_matrix_rotate(
+                    self->modelMat,
+                    self->modelMat,
+                    -self->Rangle + self->Rangle,
+                    vector3d(0,1,0));
+           }
+           */
+           
+           /*
+           gfc_matrix_copy(modelMat,self->modelMat);
+           
+           
+           gfc_matrix_rotate(
+                modelMat,
+                modelMat,
+                1,
+                vector3d(0,1,0));
+           
+           
+           
+           
+           gfc_matrix_copy(self->modelMat,modelMat);
+           */
+           
            gfc_matrix_translate(
-             player->modelMat,
-            vector3d(-move,0,0)
-          );
+            self->modelMat,
+           vector3d(-move,0,0)
+       );
            
            /*
            
@@ -186,6 +297,14 @@ void player_think(Entity *self)
            
            move = 0.005;
            
+           
+           
+           //vector3d_set_angle_by_radians(self->rotation,0.002);
+           
+           player_set_position(vector3d(0,0,-move));
+           
+           //gf3d_vgraphics_rotate_camera(1);
+           
            /*
            gfc_matrix_make_translation(
             modelMat,
@@ -202,15 +321,41 @@ void player_think(Entity *self)
             modelMat2,
             vector3d(0,0,move)
             );
-        
-          modelMat[3][0] = move;
-          modelMat[3][1] = move;
-          modelMat[3][2] = move;
+        */
+           /*
+          self->position[0][3] += move;
+          self->position[1][3] += move;
+          self->position[2][3] += move;
           */
+           
+           
+           
+           /*
+           self->Rangle = 0;
+           
+           if(self->Langle < 90){
+                self->Langle += 45;
+                
+                gfc_matrix_rotate(
+                self->modelMat,
+                self->modelMat,
+                self->Langle/2,
+                vector3d(0,1,0));
+           }
+           else{
+            gfc_matrix_rotate(
+                    self->modelMat,
+                    self->modelMat,
+                    self->Langle - self->Langle,
+                    vector3d(0,1,0));
+           }
+           */
           gfc_matrix_translate(
-              player->modelMat,
-            vector3d(0,move,0)
+            self->modelMat,
+            vector3d(0,0,-move)
           );
+          
+          
        }
        if(keys[SDL_SCANCODE_W]){
           
@@ -219,9 +364,18 @@ void player_think(Entity *self)
            
            move = 0.005;
            
+          // self->angle = 0;
+           
+           player_set_position(vector3d(0,0,move));
+           
+          // gf3d_vgraphics_move_camera(vector3d(0,move,0));
+           
+           //gf3d_camera_set_position(vector3d(0,0,move));
+           
+           //gf3d_vgraphics_move_camera(vector3d(move,0,0));
+           
            /*
             gfc_matrix_make_translation(
-            modelMat,
             vector3d(0,move,0)
             );
             */
@@ -235,10 +389,35 @@ void player_think(Entity *self)
             vector3d(0,0,move)
             );
         */
-          gfc_matrix_translate(
-              player->modelMat,
-            vector3d(0,-move,0)
-          );
+          
+          
+          /*
+          self->Langle = 0;
+          
+          if(self->Rangle > -90){
+                self->Rangle -= 45;
+                
+                gfc_matrix_rotate(
+                self->modelMat,
+                self->modelMat,
+                self->Rangle,
+                vector3d(0,1,0));
+                
+
+           }
+           else{
+            gfc_matrix_rotate(
+                    self->modelMat,
+                    self->modelMat,
+                    -self->Rangle + self->Rangle,
+                    vector3d(0,1,0));
+           }
+          */
+          
+         gfc_matrix_translate(
+             self->modelMat,
+           vector3d(0,0,move)
+         );
        }
        if(keys[SDL_SCANCODE_A]){
           
@@ -246,12 +425,36 @@ void player_think(Entity *self)
            
            move = 0.005;
            
-         
-           gfc_matrix_translate(
-              player->modelMat,
-            vector3d(move,0,0)
-          );
            
+           player_set_position(vector3d(move,0,0));
+           /*
+           self->Rangle = 0;
+           
+           if(self->Langle < 90){
+                self->Langle += 45;
+                
+                gfc_matrix_rotate(
+                self->modelMat,
+                self->modelMat,
+                self->Langle/2,
+                vector3d(0,1,0));
+           }
+           else{
+            gfc_matrix_rotate(
+                    self->modelMat,
+                    self->modelMat,
+                    self->Langle - self->Langle,
+                    vector3d(0,1,0));
+            
+           }
+         */
+           gfc_matrix_translate(
+              self->modelMat,
+            vector3d(move,0,0)
+         );
+           
+           
+           //gf3d_vgraphics_rotate_camera(0.5);
            
          
            /*
@@ -271,6 +474,99 @@ void player_think(Entity *self)
                 vector3d(0,1,0));
         */
         
+       }
+       if(keys[SDL_SCANCODE_T]){
+           
+           
+           player_set_position(vector3d(-move,0,0));
+           
+           //gf3d_vgraphics_rotate_camera(0.5);
+           
+           /*
+           gfc_matrix_rotate(
+                self->modelMat,
+                modelMat,
+                self->Rangle,
+                vector3d(0,1,0));
+           */
+           
+          
+           
+           /*
+           self->Langle = 0;
+           
+           if(self->Rangle > -90){
+                self->Rangle -= 45;
+                
+                gfc_matrix_rotate(
+                self->modelMat,
+                self->modelMat,
+                self->Rangle,
+                vector3d(0,1,0));
+                
+
+           }
+           else{
+            gfc_matrix_rotate(
+                    self->modelMat,
+                    self->modelMat,
+                    -self->Rangle + self->Rangle,
+                    vector3d(0,1,0));
+           }
+           */
+           
+           
+           gfc_matrix_translate(
+            self->modelMat,
+           vector3d(-move,0,0)
+        );
+           if(keys[SDL_SCANCODE_T]){
+           
+           
+           player_set_position(vector3d(0,0,-move));
+           
+           //gf3d_vgraphics_rotate_camera(0.5);
+           
+           /*
+           gfc_matrix_rotate(
+                self->modelMat,
+                modelMat,
+                self->Rangle,
+                vector3d(0,1,0));
+           */
+           
+          
+           
+           /*
+           self->Langle = 0;
+           
+           if(self->Rangle > -90){
+                self->Rangle -= 45;
+                
+                gfc_matrix_rotate(
+                self->modelMat,
+                self->modelMat,
+                self->Rangle,
+                vector3d(0,1,0));
+                
+
+           }
+           else{
+            gfc_matrix_rotate(
+                    self->modelMat,
+                    self->modelMat,
+                    -self->Rangle + self->Rangle,
+                    vector3d(0,1,0));
+           }
+           */
+           
+           
+           gfc_matrix_translate(
+            self->modelMat,
+           vector3d(0,0,move)
+        );
+           
+       }
        }
             /*
             if (gf2d_input_command_down("walkleft"))
@@ -379,6 +675,21 @@ void player_melee(Entity *self)
 */
 void player_update(Entity *self)
 {
+    
+    //Vector3D camerpos = {0,0,0};
+    //gf3d_camera_set_position(camerpos);
+    /*
+    gfc_matrix_translate(
+      self->modelMat,  
+        vector3d(0,-0.001,0)
+    );
+    */
+    self->frameCount +=0.025;
+                if (self->frameCount>=56){
+                 self->frameCount =1;
+                 
+                }
+    
     /*
     Vector3D camPosition = {0,0,0};
     if (!self)return;

@@ -152,7 +152,7 @@ Uint8 gf3d_rect_overlap_poc(Rect a,Rect b,Vector3D *poc, Vector3D *normal);
  * @param r the rectangle to draw
  * @param color the color to draw it with
  */
-//void gf3d_rect_draw(Rect r,Color color);
+void gf3d_rect_draw(Rect r);
 
 /**
  * @brief make a gf3d Circle

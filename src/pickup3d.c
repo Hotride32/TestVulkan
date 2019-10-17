@@ -43,13 +43,16 @@ Entity *pickup_new(Vector3D position)
     
     //self->parent = NULL;
     
-    self->shape = gf3d_shape_rect(-15, -15,-15 , 30, 30, 30);
+    
+    self->shape = gf3d_shape_rect(-5, -5,-5 , 5, 5, 5);
+    
+    //self->shape = gf3d_shape_rect(-15, -15,-15 , 25, 30, 25);
     gf3d_body_set(
         &self->body,
         "item",
         1,
-        0,
-        //PICKUP_LAYER
+        2,
+        //PICKUP_LAYER,
         0,
         0,
         position,
@@ -95,6 +98,8 @@ Entity *pickup_new(Vector3D position)
     
     //self->commandBuffer = gf3d_command_rendering_begin(self->bufferFrame);
     
+    gf3d_body_draw(&self->body,self->position);
+    
    // self->frameCount = 1;
     self->think = pickup_think;
     self->draw = pickup_draw;
@@ -115,15 +120,20 @@ void pickup_draw(Entity *self)
 
 void pickup_think(Entity *self)
 {
-    /*
+    
     Entity *player;
     player = entity_get_touching_player(self);
     if (player != NULL)
     {
-        gf2d_sound_play(self->sound[0],0,1,-1,-1);
-        self->dead = 1;            
+        //gf2d_sound_play(self->sound[0],0,1,-1,-1);
+        //self->dead = 1;    
+            slog("touching player");
     }
-    */
+    else
+    {
+        slog("not touching player");
+    }
+    
 }
 
 void pickup_update(Entity *self)

@@ -98,6 +98,9 @@ void gf3d_entity_draw(Entity *self)
         (Uint32) self->frameCount
         );
     }
+    
+   // gf3d_body_draw(&self->body,self->position);
+    
     if(self->draw != NULL)
     {
       self->draw(self);

@@ -77,13 +77,15 @@ Entity *player_new(Vector3D position)
     //gf2d_line_cpy(self->name,"player");
     //self->parent = NULL;
     
-    self->shape = gf3d_shape_rect(-16, -16,-16, 30, 60,30);
+    
+    self->shape = gf3d_shape_rect(-0.5, -0.5,-0.5, 0.5, 4,0.5);
+    //self->shape = gf3d_shape_rect(-16, -16,-16, 30, 60,30);
     gf3d_body_set(
         &self->body,
         "player",
         1,
-        0,
-        //WORLD_LAYER
+        1,
+        //WORLD_LAYER,
         0,
         1,
         position,
@@ -95,6 +97,8 @@ Entity *player_new(Vector3D position)
         self,
         NULL);
 
+    
+    
     //gf2d_actor_load(&self->actor,"actors/player.actor");
     //gf2d_actor_set_action(&self->actor,"idle");
 
@@ -122,6 +126,14 @@ Entity *player_new(Vector3D position)
             self->modelMat,
            self->position
     );
+    
+    gfc_matrix_rotate(
+                self->modelMat,
+                self->modelMat,
+                114.75,
+                vector3d(1,0,0));
+    
+    gf3d_body_draw(&self->body,self->position);
     
     //self->bufferFrame = gf3d_vgraphics_render_begin();
     //gf3d_pipeline_reset_frame(gf3d_vgraphics_get_graphics_pipeline(),self->bufferFrame);
@@ -180,6 +192,8 @@ void player_think(Entity *self)
     
     const Uint8 * keys;
     Matrix4 modelMat;
+    
+    
     keys = SDL_GetKeyboardState(NULL);
     float move;
     //self->angle = 0;
@@ -268,6 +282,15 @@ void player_think(Entity *self)
            vector3d(-move,0,0)
        );
            
+           Vector3D v = vector3d(-move,0,0);
+           Vector3D r = vector3d(-move,0,0);
+           
+           vector3d_angle_vectors(self->rotation,NULL,NULL,NULL);
+           
+           
+           //vector3d_rotate_about_x(&self->rotation,-move);
+           
+           
            /*
            
            gfc_matrix_rotate(
@@ -301,7 +324,7 @@ void player_think(Entity *self)
            
            //vector3d_set_angle_by_radians(self->rotation,0.002);
            
-           player_set_position(vector3d(0,0,-move));
+           player_set_position(vector3d(0,move,0));
            
            //gf3d_vgraphics_rotate_camera(1);
            
@@ -329,12 +352,12 @@ void player_think(Entity *self)
           */
            
            
-           
            /*
+           
            self->Rangle = 0;
            
-           if(self->Langle < 90){
-                self->Langle += 45;
+           if(self->Langle < 180){
+                self->Langle += 180;
                 
                 gfc_matrix_rotate(
                 self->modelMat,
@@ -349,12 +372,76 @@ void player_think(Entity *self)
                     self->Langle - self->Langle,
                     vector3d(0,1,0));
            }
+           
            */
+           //gfc_matrix_identity(modelmat);
+           
+           
+           
+           //Matrix4 modelmat = {{1,0,0,0},{0,-1,0,0},{0,0,1,0},{0,0,0,1}};
+           
+            //gfc_matrix_translate(
+            //modelmat,
+           // vector3d(0,-move,0)
+           // );
+            /*
+            gfc_matrix_translate(
+            modelmat,
+            vector3d(self->position.x,self->position.y,self->position.z)
+          );
+            */
+/*
+           gfc_matrix_multiply(
+               self->modelMat,
+               modelmat,
+               self->modelMat
+               
+           );
+           */
+           //self->modelMat[0][0] = modelmat[0][0];
+          // self->modelMat[1][1] = -self->modelMat[1][1];
+           //self->modelMat[2][2] = modelmat[2][2];
+          // self->modelMat[3][3] = modelmat[3][3];
+           
+           /*
+           gfc_matrix_translate(
+            self->modelMat,
+            vector3d(_player->position.x,_player->position.y,_player->position.z)
+          );
+           */
+           
+           
+          
           gfc_matrix_translate(
             self->modelMat,
-            vector3d(0,0,-move)
+            vector3d(0,move,0)
           );
           
+          
+          
+          //gfc_matrix_identity(modelMat);
+          /*
+          gfc_matrix_copy(modelMat,self->modelMat);
+          
+          gfc_matrix_translate(
+            self->modelMat,
+            vector3d(0,move,0)
+          );
+          
+          gfc_matrix_rotate(
+                self->modelMat,
+                modelMat,
+                114.75,
+                vector3d(1,0,0));
+          
+          gfc_matrix_rotate(
+                modelMat,
+                self->modelMat,
+                180,
+                vector3d(0,1,0));
+          
+          gfc_matrix_copy(self->modelMat,modelMat);
+          */
           
        }
        if(keys[SDL_SCANCODE_W]){
@@ -366,14 +453,23 @@ void player_think(Entity *self)
            
           // self->angle = 0;
            
-           player_set_position(vector3d(0,0,move));
+           player_set_position(vector3d(0,-move,0));
            
           // gf3d_vgraphics_move_camera(vector3d(0,move,0));
+           /*
+           gfc_matrix_copy(modelMat,self->modelMat);
            
-           //gf3d_camera_set_position(vector3d(0,0,move));
+           gfc_matrix_translate(
+               modelMat,
+               vector3d(40,0,0)
+           );
+           
+           gf3d_vgraphics_move_camera(modelMat,vector3d(0,-move,0));
+           
+          // gf3d_camera_set_position();
            
            //gf3d_vgraphics_move_camera(vector3d(move,0,0));
-           
+           */
            /*
             gfc_matrix_make_translation(
             vector3d(0,move,0)
@@ -394,8 +490,8 @@ void player_think(Entity *self)
           /*
           self->Langle = 0;
           
-          if(self->Rangle > -90){
-                self->Rangle -= 45;
+          if(self->Rangle > -180){
+                self->Rangle -=180;
                 
                 gfc_matrix_rotate(
                 self->modelMat,
@@ -412,11 +508,11 @@ void player_think(Entity *self)
                     -self->Rangle + self->Rangle,
                     vector3d(0,1,0));
            }
-          */
           
+          */
          gfc_matrix_translate(
              self->modelMat,
-           vector3d(0,0,move)
+           vector3d(0,-move,0)
          );
        }
        if(keys[SDL_SCANCODE_A]){

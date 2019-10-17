@@ -23,11 +23,12 @@ void gf3d_body_push(Body *body,Vector3D direction,float force)
     vector3d_set_magnitude(&direction,force);
     vector3d_add(body->velocity,body->velocity,direction);
 }
-/*
+
 void gf3d_body_draw(Body *body,Vector3D offset)
 {
     Vector4D color;
     Shape shape;
+    Rect rect;
     Vector3D center;
     if (!body)return;
     vector4d_set(color,0,255,255,255);
@@ -36,11 +37,12 @@ void gf3d_body_draw(Body *body,Vector3D offset)
     //gf2d_draw_pixel(center,color);
         
     vector4d_set(color,255,0,255,255);
-    gf3d_shape_copy(&shape,*body->shape);
-    gf3d_shape_move(&shape,body->position);
+    gf3d_shape_copy(&rect,*body->shape);
+    gf3d_shape_move(&rect,body->position);
    // gf3d_shape_draw(shape,gf2d_color_from_vector4(color),offset);
+    gf3d_rect_draw(rect);
 }
-*/
+
 void gf3d_body_set(
     Body       *body,
     char       *name,

@@ -11,7 +11,8 @@
 Uint8 gf3d_edge_circle_intersection_poc_old(Edge e,Circle c,Vector3D *poc,Vector3D *normal);
 Uint8 gf3d_edge_to_circle_intersection_poc(Edge e,Circle c,Vector3D *poc,Vector3D *normal);
 Uint8 gf3d_circle_to_edge_intersection_poc(Edge e,Circle c,Vector3D *poc,Vector3D *normal);
-
+*/
+/*
 Vector3D gf3d_rect_get_center_point(Rect r)
 {
     return vector3d(r.x + r.w*0.5,r.y + r.h*0.5, r.z+r.d*0.5 );
@@ -32,7 +33,8 @@ Vector3D gf3d_edge_get_normal_for_rect(Edge e, Rect r)
     vector3d_copy(parallel,n1);
     n1.x = p2.y - p1.y;
     n1.y = p1.x - p2.x;
-    vector3d_scale(parallel,parallel,r.w+r.h);
+    n1.z = p1.z - p2.z;
+    vector3d_scale(parallel,parallel,r.w+r.h+r.d);
     
     vector3d_normalize(&n1);
     vector3d_negate(n2,n1);
@@ -321,25 +323,25 @@ Vector3D gf3d_shape_get_normal_for_rect(Shape s, Rect r)
     }
     return out;
 }
-
+*/
 Vector3D gf3d_shape_get_normal_for_shape(Shape s, Shape s2)
 {
-    Vector3D out = {0};
-    switch(s2.type)
-    {
-        case ST_RECT:
-            out = gf3d_shape_get_normal_for_rect(s, s2.s.r);
-            break;
-        case ST_CIRCLE:
-            out = gf3d_shape_get_normal_for_cirlce(s, s2.s.c);
-            break;
-        case ST_EDGE:
-            out = gf3d_shape_get_normal_for_edge(s, s2.s.e);
-            break;
-    }
-    return out;
+  //  Vector3D out = {0};
+    //switch(s2.type)
+    //{
+        //case ST_RECT:
+           // out = gf3d_shape_get_normal_for_rect(s, s2.s.r);
+        //    break;
+       // case ST_CIRCLE:
+         //   out = gf3d_shape_get_normal_for_cirlce(s, s2.s.c);
+           // break;
+   //     case ST_EDGE:
+     //       out = gf3d_shape_get_normal_for_edge(s, s2.s.e);
+       //     break;
+    //}
+   // return out;
 }
-
+/*
 Rect gf2d_rect(float x, float y, float w, float h)
 {
     Rect r;
@@ -347,14 +349,33 @@ Rect gf2d_rect(float x, float y, float w, float h)
     return r;
 }
 */
-/*
-void gf3d_rect_draw(Rect r,Color color)
+
+void gf3d_rect_draw(Rect r)
 {
-    gf3d_draw_rect(gf3d_rect_to_sdl_rect(r),gf3d_color_to_vector4(color));
+    //gf3d_draw_rect(gf3d_rect_to_sdl_rect(r),gf3d_color_to_vector4(color));
+    
+    test_spawn(vector3d(r.x,r.y,r.z));
+    test_spawn(vector3d(r.h,r.w,r.d));
+    /*test_spawn(vector3d(r.x,r.y,r.h));
+    test_spawn(vector3d(r.x,r.y,r.d));
+    test_spawn(vector3d(r.x,r.y,r.w));
+    test_spawn(vector3d(r.z,r.x,r.h));
+    test_spawn(vector3d(r.z,r.x,r.d));
+    test_spawn(vector3d(r.z,r.x,r.w));
+    test_spawn(vector3d(r.y,r.z,r.h));
+    test_spawn(vector3d(r.y,r.z,r.d));
+    test_spawn(vector3d(r.y,r.z,r.w));
+    */
+    
+    
 }
 
-void gf3d_shape_draw(Shape shape,Color color,Vector3D offset)
-{
+//void gf3d_shape_draw(Shape shape,Color color,Vector3D offset)
+//{
+    
+     //vector3d_add(shape.s.r,shape.s.r,offset);
+       //     gf3d_rect_draw(shape.s.r,color);
+            /*
     switch(shape.type)
     {
         case ST_RECT:
@@ -367,9 +388,10 @@ void gf3d_shape_draw(Shape shape,Color color,Vector3D offset)
         case ST_EDGE:
             gf3d_draw_line(vector3d(shape.s.e.x1 + offset.x,shape.s.e.y1 + offset.y),vector3d(shape.s.e.x2 + offset.x,shape.s.e.y2 + offset.y), gf3d_color_to_vector4(color));
             break;
-    }
-}
-*/
+            
+    }*/
+//}
+
 /*
 Circle gf3d_circle(float x, float y, float r)
 {
@@ -1227,24 +1249,24 @@ Rect gf3d_circle_get_bounds(Circle c)
     r.h = c.r*2;
     return r;
 }
-
+*/
 Rect gf3d_shape_get_bounds(Shape shape)
 {
     Rect r = {0,0,0,0};
-    switch(shape.type)
-    {
-        case ST_EDGE:
-            r = gf3d_edge_get_bounds(shape.s.e);
-            break;
-        case ST_RECT:
+    //switch(shape.type)
+    //{
+    //    case ST_EDGE:
+    //        r = gf3d_edge_get_bounds(shape.s.e);
+    //        break;
+        //case ST_RECT:
             return shape.s.r;
-            break;
-        case ST_CIRCLE:
-            r = gf3d_circle_get_bounds(shape.s.c);
-            break;
-    }
+            //break;
+       // case ST_CIRCLE:
+       //     r = gf3d_circle_get_bounds(shape.s.c);
+       //     break;
+   // }
     return r;
 }
 
-*/
+
 /*eol@eof*/

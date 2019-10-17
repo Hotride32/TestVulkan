@@ -58,8 +58,17 @@ int main(int argc,char *argv[])
     
    //player->model = gf3d_model_load("dino");
    //player->bufferFrame
+   
    player_spawn(vector3d(0,0,0));
+   
+   
+   
+   
+   //pickup_spawn(vector3d(10,0,0));
+  // pickup_spawn(vector3d(0,0,10));
+   //pickup_spawn(vector3d(-10,0,0));
    pickup_spawn(vector3d(10,0,0));
+   //pickup_spawn(vector3d(0,0,-10));
    
    //player_spawn(vector3d(10,0,0));
     // main game loop
@@ -120,7 +129,7 @@ int main(int argc,char *argv[])
         gf3d_entity_think_all();
         
         
-        gf3d_vgraphics_rotate_camera(0.000);
+        gf3d_vgraphics_rotate_camera(0.00005);
         
         if(keys == NULL){
         

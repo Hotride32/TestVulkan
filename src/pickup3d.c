@@ -126,12 +126,23 @@ void pickup_think(Entity *self)
     if (player != NULL)
     {
         //gf2d_sound_play(self->sound[0],0,1,-1,-1);
-        //self->dead = 1;    
+        //self->dead = 1;  
+        
+        player = player_get();
+            player->health += 25;
+            slog("entity %f",player->health);
+        
             slog("touching player");
+            gf3d_entity_free(self);
+           /*
+            player = player_get();
+            player->health += 25;
+            slog("entity %li",player->health);
+            */
     }
     else
     {
-        slog("not touching player");
+        //slog("not touching player");
     }
     
 }

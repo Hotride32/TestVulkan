@@ -39,6 +39,14 @@ int entity_wall_check(Entity *self, Vector3D dir);
 Entity *entity_get_touching_player(Entity *self);
 
 /**
+ * @brief is pickup getting touched
+ * @param self touching pickup
+ * @returns Entity that is pointer to pickup
+ * 
+ */
+//Entity *entity_get_touching_pickup(Entity *self)
+
+/**
  * @brief push other entity away from self by amount
  */
 void entity_push(Entity *self,Entity *other,float amount);

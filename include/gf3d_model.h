@@ -63,10 +63,10 @@ Model * gf3d_model_new();
  * @param commandBuffer the command used to send this render request
  * @param modelMat the model matrix (MVP)
  */
-void gf3d_model_draw_anim(Model *model,Uint32 bufferFrame,VkCommandBuffer commandBuffer,Matrix4 modelMat, Uint32 frame);
+void gf3d_model_draw_anim(Model *model,Vector3D *position,Vector3D  *rotation,Uint32 bufferFrame,VkCommandBuffer commandBuffer,Matrix4 modelMat, Uint32 frame);
 
 
-void gf3d_model_draw(Model *model,Uint32 bufferFrame,VkCommandBuffer commandBuffer,Matrix4 modelMat);
+void gf3d_model_draw(Model *model,Vector3D *position,Vector3D  *rotation,Uint32 bufferFrame,VkCommandBuffer commandBuffer,Matrix4 modelMat);
 
 
 

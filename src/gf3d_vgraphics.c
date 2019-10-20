@@ -13,7 +13,7 @@
 #include "gfc_types.h"
 #include "gfc_vector.h"
 #include "gfc_matrix.h"
-
+#include "entity3d.h"
 #include "gf3d_validation.h"
 #include "gf3d_extensions.h"
 #include "gf3d_vqueues.h"
@@ -100,6 +100,9 @@ void gf3d_vgraphics_init(
     Bool enableValidation
 )
 {
+    
+    //Entity play = player_get();
+    
     VkDevice device;
     
     gfc_matrix_identity(gf3d_vgraphics.ubo.model);
@@ -107,8 +110,9 @@ void gf3d_vgraphics_init(
     gfc_matrix_identity(gf3d_vgraphics.ubo.proj);
     gfc_matrix_view(
         gf3d_vgraphics.ubo.view,
-        vector3d(2,40,2),
+        vector3d(2,40,20),
         vector3d(0,0,0),
+                    //vector3d(0,0,0)
         vector3d(0,0,1)
     );
     gfc_matrix_perspective(
@@ -649,6 +653,7 @@ uint32_t gf3d_vgraphics_find_memory_type(uint32_t typeFilter, VkMemoryPropertyFl
         {
             return i;
         }
+        
     }
 
     slog("failed to find suitable memory type!");
@@ -668,7 +673,7 @@ void gf3d_vgraphics_rotate_camera(float degrees)
 void gf3d_vgraphics_move_camera(Matrix4 *view,Vector3D move)
 {
     
-    gfc_matrix_copy(gf3d_vgraphics.ubo.view,view);
+    //gfc_matrix_copy(gf3d_vgraphics.ubo.view,view);
     
     gfc_matrix_translate(
         gf3d_vgraphics.ubo.view,

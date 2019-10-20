@@ -24,6 +24,7 @@ typedef enum
 typedef struct Entity_S
 {
     TextLine name;
+    Uint64 id;
     Uint8 _inuse;
     Model *model;
     Matrix4 modelMat;
@@ -73,5 +74,13 @@ void gf3d_entity_draw_all(Uint32 bufferFrame, Uint32  frameCount, VkCommandBuffe
 void gf3d_entity_think_all();
 
 void gf3d_entity_update_all();
+
+void gf3d_entity_pre_sync_body(Entity *self);
+
+void gf3d_entity_post_sync_body(Entity *self);
+
+void gf3d_entity_pre_sync_all();
+
+void gf3d_entity_post_sync_all();
 
 #endif

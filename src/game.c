@@ -126,10 +126,17 @@ int main(int argc,char *argv[])
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
         //update game things here
         gf3d_entity_update_all();
+        
+        gf3d_entity_pre_sync_all();
+        
+        gf3d_entity_post_sync_all();
+        
         gf3d_entity_think_all();
         
         
-        gf3d_vgraphics_rotate_camera(0.00005);
+        
+        
+        //gf3d_vgraphics_rotate_camera(0.00005);
         
         if(keys == NULL){
         

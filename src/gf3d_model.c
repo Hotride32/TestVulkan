@@ -156,7 +156,7 @@ void gf3d_model_delete(Model *model)
     gf3d_texture_free(model->texture);
 }
 
-void gf3d_model_draw_anim(Model *model,Uint32 bufferFrame,VkCommandBuffer commandBuffer,Matrix4 modelMat,Uint32 frame)
+void gf3d_model_draw_anim(Model *model,Vector3D *position,Vector3D  *rotation,Uint32 bufferFrame,VkCommandBuffer commandBuffer,Matrix4 modelMat,Uint32 frame)
 {
     VkDescriptorSet *descriptorSet = NULL;
     if (!model)
@@ -175,11 +175,14 @@ void gf3d_model_draw_anim(Model *model,Uint32 bufferFrame,VkCommandBuffer comman
         slog("failed to get a free descriptor Set for model rendering");
         return;
     }
+    
+    
+    
     gf3d_model_update_basic_model_descriptor_set(model,*descriptorSet,bufferFrame,modelMat);
     gf3d_mesh_render(model->mesh[frame],commandBuffer,descriptorSet);
 }
 
-void gf3d_model_draw(Model *model,Uint32 bufferFrame, VkCommandBuffer commandBuffer,Matrix4 modelMat)
+void gf3d_model_draw(Model *model,Vector3D *position,Vector3D  *rotation,Uint32 bufferFrame, VkCommandBuffer commandBuffer,Matrix4 modelMat)
 {
     VkDescriptorSet *descriptorSet = NULL;
     if (!model)
@@ -193,6 +196,8 @@ void gf3d_model_draw(Model *model,Uint32 bufferFrame, VkCommandBuffer commandBuf
         slog("failed to get a free descriptor Set for model rendering");
         return;
     }
+    
+    
     gf3d_model_update_basic_model_descriptor_set(model,*descriptorSet,bufferFrame,modelMat);
     gf3d_mesh_render(model->mesh[0],commandBuffer,descriptorSet);
 }

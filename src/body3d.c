@@ -40,7 +40,7 @@ void gf3d_body_draw(Body *body,Vector3D offset)
     gf3d_shape_copy(&rect,*body->shape);
     gf3d_shape_move(&rect,body->position);
    // gf3d_shape_draw(shape,gf2d_color_from_vector4(color),offset);
-    gf3d_rect_draw(rect);
+   // gf3d_rect_draw(rect);
 }
 
 void gf3d_body_set(

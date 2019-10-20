@@ -66,6 +66,7 @@ void gf3d_entity_free(Entity *self)
     }
     self->_inuse = 0;
     gf3d_model_free(self->model);
+    //gf3d_body_clear(&self->body);
     if(self->data != NULL)
     {
         slog("warning: data not freed at entity free!");
@@ -82,6 +83,8 @@ void gf3d_entity_draw(Entity *self)
     if(self->stat == 0){
         gf3d_model_draw(
             self->model,
+            &self->position,
+            &self->rotation,
             self->bufferFrame,
             self->commandBuffer,
             self->modelMat);
@@ -90,6 +93,8 @@ void gf3d_entity_draw(Entity *self)
     else{
     gf3d_model_draw_anim(
         self->model,
+        &self->position,
+        &self->rotation,
         self->bufferFrame,
         self->commandBuffer,
         self->modelMat,
@@ -99,7 +104,7 @@ void gf3d_entity_draw(Entity *self)
         );
     }
     
-   // gf3d_body_draw(&self->body,self->position);
+    gf3d_body_draw(&self->body,self->position);
     
     if(self->draw != NULL)
     {
@@ -128,9 +133,13 @@ void gf3d_entity_update(Entity *self)
     if(!self->_inuse)return;
 
     /*do collision testing*/
-    //vector3d_add(self->position,self->position,self->velocity);
-    //vector3d_add(self->velocity,self->velocity,self->acceleration);
+    vector3d_add(self->position,self->position,self->velocity);
+    vector3d_add(self->velocity,self->velocity,self->acceleration);
 
+    //slog("x"+self->position.x +"y"+self->position.y+"z"+self->positon.z);
+    
+    
+    
     //gf3d_particle_emitter_update(self->pe);
 
     //gf3d_action_list_get_next_frame(self->al,&self->frameCount,self->action);
@@ -146,7 +155,7 @@ void gf3d_entity_update(Entity *self)
                  
                 //}
                 
-
+    //gf3d_body_draw(&self->body,self->position);
     
     if (self->update != NULL)
     {
@@ -178,6 +187,44 @@ void gf3d_entity_update_all()
         gf3d_entity_update(&gf3d_entity_manager.entity_list[i]);
     }
 }
+
+
+void gf3d_entity_pre_sync_body(Entity *self)
+{
+    if (!self)return;// nothin to do
+    vector3d_copy(self->body.velocity,self->velocity);
+    vector3d_copy(self->body.position,self->position);
+}
+
+void gf3d_entity_post_sync_body(Entity *self)
+{
+    if (!self)return;// nothin to do
+    //slog("entity %li : %s old position(%f,%f,%f) => new position (%f,%f,%f)",self->id,self->name,self->position,self->body.position);
+    vector3d_copy(self->position,self->body.position);
+    vector3d_copy(self->velocity,self->body.velocity);
+}
+
+
+void gf3d_entity_pre_sync_all()
+{
+    int i;
+    for (i = 0; i < gf3d_entity_manager.entity_max;i++)
+    {
+        if (gf3d_entity_manager.entity_list[i]._inuse == 0)continue;
+        gf3d_entity_pre_sync_body(&gf3d_entity_manager.entity_list[i]);
+    }
+}
+
+void gf3d_entity_post_sync_all()
+{
+    int i;
+    for (i = 0; i < gf3d_entity_manager.entity_max;i++)
+    {
+        if (gf3d_entity_manager.entity_list[i]._inuse == 0)continue;
+        gf3d_entity_post_sync_body(&gf3d_entity_manager.entity_list[i]);
+    }
+}
+
 
 
 /*eol@eof*/

@@ -209,4 +209,17 @@ Entity *entity_get_touching_player(Entity *self)
     }
     return NULL;
 }
+/*
+Entity *entity_get_touching_pickup(Entity *self)
+{
+    Entity *pickup;
+    pickup = pickup_get();
+    if (!pickup)return NULL;
+    if (gf3d_body_body_collide(&self->body,&pickup->body))
+    {
+        return pickup;
+    }
+    return NULL;
+}
+*/
 /*eol@eof*/

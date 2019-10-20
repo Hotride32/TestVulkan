@@ -356,6 +356,9 @@ void gf3d_rect_draw(Rect r)
     
     test_spawn(vector3d(r.x,r.y,r.z));
     test_spawn(vector3d(r.h,r.w,r.d));
+    
+    
+    
     /*test_spawn(vector3d(r.x,r.y,r.h));
     test_spawn(vector3d(r.x,r.y,r.d));
     test_spawn(vector3d(r.x,r.y,r.w));

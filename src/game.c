@@ -59,7 +59,7 @@ int main(int argc,char *argv[])
    //player->model = gf3d_model_load("dino");
    //player->bufferFrame
    
-   player_spawn(vector3d(0,0,0));
+   player_spawn(vector3d(1,1,0));
    
    
    

@@ -675,11 +675,19 @@ void gf3d_vgraphics_move_camera(Matrix4 *view,Vector3D move)
     
     //gfc_matrix_copy(gf3d_vgraphics.ubo.view,view);
     
-    gfc_matrix_translate(
+//     gfc_matrix_translate(
+//         gf3d_vgraphics.ubo.view,
+//         move);
+    
+    gfc_matrix_view(
         gf3d_vgraphics.ubo.view,
-        move);
+        vector3d(move.x,move.y+40,20),
+        move,
+                   //move.x+2 //vector3d(0,0,0)
+        vector3d(0,0,1)
+    );
     
-    
+    //gfc_matrix_copy(gf3d_vgraphics.ubo.view,view);
 
 }
 

@@ -24,6 +24,7 @@ void gf3d_entity_manager_close()
     memset(&gf3d_entity_manager,0,sizeof(EntityManager));
 }
 
+
 void gf3d_entity_manager_init(Uint32 entity_max)
 {
     
@@ -56,6 +57,18 @@ Entity *gf3d_entity_new()
     return NULL;
 }
 
+Entity *gf3d_entity_get_list()
+{
+        return gf3d_entity_manager.entity_list;
+    
+}
+
+Uint32 *gf3d_entity_get_max()
+{
+    
+    
+    return gf3d_entity_manager.entity_max;
+}
 
 void gf3d_entity_free(Entity *self)
 {
@@ -66,7 +79,7 @@ void gf3d_entity_free(Entity *self)
     }
     self->_inuse = 0;
     gf3d_model_free(self->model);
-    //gf3d_body_clear(&self->body);
+    gf3d_body_clear(&self->body);
     if(self->data != NULL)
     {
         slog("warning: data not freed at entity free!");

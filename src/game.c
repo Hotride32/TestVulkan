@@ -51,7 +51,7 @@ int main(int argc,char *argv[])
         0,                      //fullscreen
         validate                //validation
     );
-    
+    //vector4d(0.51,0.75,1,1)
     
     
    gf3d_entity_manager_init(2028);
@@ -62,7 +62,7 @@ int main(int argc,char *argv[])
    player_spawn(vector3d(1,1,0));
    
    
-   
+   monster_spawn(vector3d(-20,-20,0));
    
    //pickup_spawn(vector3d(10,0,0));
   // pickup_spawn(vector3d(0,0,10));
@@ -311,7 +311,7 @@ int main(int argc,char *argv[])
 
         if (keys[SDL_SCANCODE_ESCAPE])done = 1; // exit condition
     }    
-    
+    gf3d_entity_manager_close();
     vkDeviceWaitIdle(gf3d_vgraphics_get_default_logical_device());    
     //cleanup
     slog("gf3d program end");

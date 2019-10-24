@@ -2,6 +2,7 @@
 #include "gf3d_camera.h"
 #include "simple_logger.h"
 //#include "particle_effects.h"
+#include "collision3d.h"
 #include "entity_common3d.h"
 //#include "level.h"
 #include "player3d.h"
@@ -15,7 +16,7 @@ Collision entity_scan_hit(Entity *self,vector3d start,vector3d end, CollisionFil
     gf3d_shape_draw(gf3d_shape_edge(start.x,start.y,end.x,end.y),gf3d_color(255,255,0,255),camera_get_offset());
     return c;
 }
-
+*/
 void entity_damage(Entity *target,Entity *killer,int damage,float kick)
 {
     if ((!target)||(!killer))
@@ -32,7 +33,7 @@ void entity_damage(Entity *target,Entity *killer,int damage,float kick)
 
 void entity_push(Entity *self,Entity *other,float amount)
 {
-    vector3d push;
+    Vector3D push;
     if ((!self)||(!other))
     {
         slog("missing an entity");
@@ -43,7 +44,7 @@ void entity_push(Entity *self,Entity *other,float amount)
     vector3d_add(other->velocity,other->velocity,push);
     vector3d_add(other->body.velocity,other->body.velocity,push);
 }
-
+/*
 int entity_camera_view(Entity *self)
 {
     Rect r,c;

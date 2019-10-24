@@ -46,8 +46,14 @@ typedef struct Entity_S
     void (*update)(struct Entity_S *self);
     void (*touch)(struct Entity_S *self);
     void (*draw)(struct Entity_S *self);
+    void (*activate)(struct Entity_S *self,struct Entity_S *activator);    /**<some entities can be activated by others, doors opened, levels, etc*/
+    int  (*damage)(struct Entity_S *self,int amount, struct Entity_S *source);/**<when this entity takes damage*/
+    void (*die)(struct Entity_S *self);     /**<when this entity dies*/
+    void (*free)(struct Entity_S *self);
     float health;
     float healthmax;
+    float cooldown;
+    float jumpcool;
     float armor;
     float experience;
     float level;

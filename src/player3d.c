@@ -168,6 +168,8 @@ Entity *player_new(Vector3D position)
     
     self->stat = 1;
     
+    self->frameCount = 1;
+    
     gfc_matrix_identity(self->modelMat);
     
     gfc_matrix_translate(
@@ -221,12 +223,12 @@ void player_draw(Entity *self)
     gf3d_entity_draw(self);
     */
     
-    self->frameCount +=0.025;
-                if (self->frameCount>=56){
-                 self->frameCount =1;
-                 
-                }
-   
+//     self->frameCount +=0.025;
+//                 if (self->frameCount>=56){
+//                  self->frameCount =1;
+//                  
+//                 }
+//    
                 
     
     //additional player drawings can go here
@@ -251,6 +253,12 @@ void player_think(Entity *self)
     vector3d(0,0,1)
     );
     */
+    
+    self->frameCount +=0.025;
+                 if (self->frameCount>=56){
+                  self->frameCount =1;
+                  
+                 }
     
     keys = SDL_GetKeyboardState(NULL);
     float move;

@@ -29,7 +29,7 @@ typedef struct Entity_S
     Model *model;
     Matrix4 modelMat;
     Uint32 bufferFrame;
-    Uint32  frameCount;
+    float  frameCount;
     Uint32 stat;
     Shape shape;
     Body body;

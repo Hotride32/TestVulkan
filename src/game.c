@@ -61,8 +61,10 @@ int main(int argc,char *argv[])
    
    player_spawn(vector3d(1,1,0));
    
+   Vector3D skystate = vector3d(0,0,0);
+   Vector3D skypos = vector3d(0,0,10);
    
-   monster_spawn(vector3d(-20,-20,0));
+   monster_spawn(vector3d(-40,-40,0));
    
    //pickup_spawn(vector3d(10,0,0));
   // pickup_spawn(vector3d(0,0,10));
@@ -73,9 +75,9 @@ int main(int argc,char *argv[])
    //player_spawn(vector3d(10,0,0));
     // main game loop
     slog("gf3d main loop begin");
-   // model = gf3d_model_load("dino");
+    model = gf3d_model_load("skybox");
     //model = gf3d_model_load_animated("dun_idle",1,57);
-    //gfc_matrix_identity(modelMat);
+    gfc_matrix_identity(modelMat);
     //model2 = gf3d_model_load("dino");
     //model2 = gf3d_model_load("dito");
     //gfc_matrix_identity(modelMat2);
@@ -96,22 +98,36 @@ int main(int argc,char *argv[])
     player->draw = gf3d_entity_draw;
     //player->update = gf3d_entity_update;
     */
-    gfc_matrix_make_translation(
-            modelMat2,
-           vector3d(0,0,0)
-        );
+//     gfc_matrix_make_translation(
+//             modelMat2,
+//            vector3d(0,0,0)
+//         );
 
 
-
+    //gfc_matrix_multiply(modelMat, modelMat, {1,1,1,10},{1,1,1,10},{1,1,1,10},{1,1,1,1});
+/*
+    modelMat[0][3] *= 100;
+    modelMat[1][3] *= 100;
+    modelMat[2][3] *= 100;
+    */
     gfc_matrix_rotate(
-        modelMat2,
-        modelMat2,
-        90,
+        modelMat,
+        modelMat,
+        89.5,
         vector3d(1,0,0));
 
 
-
-
+     //modelMat[0][3] += 100;
+     //modelMat[1][3] += 100;
+     //modelMat[2][3] += 100;
+     
+/*
+    modelMat[3][0] += 100;
+    modelMat[3][1] += 100;
+    modelMat[3][2] += 100;*/
+    
+    modelMat[3][3] *= 0.05;
+    
     //gfc_matrix_make_translation(
     //    modelMat,
    //     vector3d(0,0,20)
@@ -281,11 +297,11 @@ int main(int argc,char *argv[])
         bufferFrame = gf3d_vgraphics_render_begin();
         gf3d_pipeline_reset_frame(gf3d_vgraphics_get_graphics_pipeline(),bufferFrame);
             commandBuffer = gf3d_command_rendering_begin(bufferFrame);
-                frame +=0.025;
-                if (frame>=56){
-                 frame =0;
-                 
-                }
+//                 frame +=0.025;
+//                 if (frame>=56){
+//                  frame =0;
+//                  
+//                 }
                 
                 
                 
@@ -293,7 +309,7 @@ int main(int argc,char *argv[])
                 
                 
                 
-        //gf3d_model_draw(model,bufferFrame,commandBuffer,modelMat2,(Uint32)frame);
+        gf3d_model_draw(model,&skypos,&skystate,bufferFrame,commandBuffer,modelMat);
                 //(Uint32)frame
                 
                // player->model = model2;

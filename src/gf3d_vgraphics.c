@@ -108,6 +108,8 @@ void gf3d_vgraphics_init(
     gfc_matrix_identity(gf3d_vgraphics.ubo.model);
     gfc_matrix_identity(gf3d_vgraphics.ubo.view);
     gfc_matrix_identity(gf3d_vgraphics.ubo.proj);
+    gf3d_vgraphics.ubo.light = 1;
+    
     gfc_matrix_view(
         gf3d_vgraphics.ubo.view,
         vector3d(2,40,20),
@@ -117,10 +119,10 @@ void gf3d_vgraphics_init(
     );
     gfc_matrix_perspective(
         gf3d_vgraphics.ubo.proj,
-        45 * GFC_DEGTORAD,
+        45 * GFC_DEGTORAD,//changed from 45
         renderWidth/(float)renderHeight,
         0.1f,
-        100
+        100000
     );
     
     gf3d_vgraphics.ubo.proj[1][1] *= -1;

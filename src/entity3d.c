@@ -132,7 +132,7 @@ void gf3d_entity_draw_all(Uint32 bufferFrame, Uint32  frameCount, VkCommandBuffe
    {
       if (gf3d_entity_manager.entity_list[i]._inuse == 0)continue;
         gf3d_entity_manager.entity_list[i].commandBuffer = commandBuffer;
-        gf3d_entity_manager.entity_list[i].frameCount = frameCount;
+        //gf3d_entity_manager.entity_list[i].frameCount = frameCount;
         gf3d_entity_manager.entity_list[i].bufferFrame =bufferFrame;
         //gf3d_entity_manager.entity_list[i].key = key;
       gf3d_entity_draw(&gf3d_entity_manager.entity_list[i]);

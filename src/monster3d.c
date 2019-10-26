@@ -108,7 +108,7 @@ void monster_think_attacking(Entity *self)
 {
    // if (gf3d_actor_get_frames_remaining(&self->actor) == 1)
     //{
-        slog("checking for hit");
+        //slog("checking for hit");
         /*
         c = entity_block_hit(self,gf3d_rect(self->position.x + 32 + (self->flip.x * -64),self->position.y-8,16,32));
         if (c.collided)
@@ -121,14 +121,14 @@ void monster_think_attacking(Entity *self)
     //}
     //if (gf3d_actor_get_frames_remaining(&self->actor) <= 0)
     //{
-        slog("back to search");
+       // slog("back to search");
         self->think = monster_think_hunting;
     //}
 }
 
 void monster_attack(Entity *self)
 {
-    slog("attacking player");
+    //slog("attacking player");
     //gf3d_actor_set_action(&self->actor,"attack1");
     //self->cooldown = gf3d_actor_get_frames_remaining(&self->actor);
     self->think = monster_think_attacking;
@@ -144,7 +144,7 @@ void monster_think_patroling(Entity *self)
     vector3d_copy(self->position,position);
     vector3d_copy(self->body.position,position);
     
-    slog("Monster position %f,%f,%f ", self->position.x, self->position.y, self->position.z);
+   // slog("Monster position %f,%f,%f ", self->position.x, self->position.y, self->position.z);
     
     if (monster_player_sight_check(self))
     {
@@ -211,7 +211,7 @@ void monster_think_hunting(Entity *self)
     if ((self->jumpcool) || (self->cooldown))return;
    // if (vector3d_magnitude_compare(vector3d(self->position.x - player->position.x,self->position.y - player->position.y, self->position.z - player->position.z),500) < 0)
     //{
-        slog("moving towards player");
+      //  slog("moving towards player");
         
         Vector3D position = {0};
         
@@ -249,7 +249,7 @@ void monster_think_hunting(Entity *self)
      vector3d_copy(self->position,position);
     vector3d_copy(self->body.position,position);
     
-    slog("Monster position %f,%f,%f ", self->position.x, self->position.y, self->position.z);
+    //slog("Monster position %f,%f,%f ", self->position.x, self->position.y, self->position.z);
        // return;
     //slog("%f", move);
     //}
@@ -257,7 +257,7 @@ void monster_think_hunting(Entity *self)
 //     if (vector3d_magnitude_compare(vector3d(self->position.x - player->position.x,self->position.y - player->position.y, self->position.z - player->position.z),50) > 0)
 //     {
     if(move >50){
-        slog("lost the player");
+        //slog("lost the player");
         self->think = monster_think_patroling;// idle think //_patroling
         //gf3d_actor_set_action(&self->actor,"walk");
         return;
@@ -366,8 +366,14 @@ void monster_update(Entity *self)
     //world clipping
     if (self->cooldown > 0) self->cooldown--;
     if (self->cooldown < 0)self->cooldown = 0;
-    self->health -= 0.001;
+    //self->health -= 0.001;
     
+    const Uint8 * keys;
+    keys = SDL_GetKeyboardState(NULL);
+    
+    if(keys[SDL_SCANCODE_I]){
+            self->health -=10;
+    }
     
     if (self->health <= 0)
     {

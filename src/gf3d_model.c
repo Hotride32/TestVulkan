@@ -120,6 +120,7 @@ Model * gf3d_model_load(char * filename)
     model = gf3d_model_new();
     if (!model)return NULL;
     snprintf(assetname,GFCLINELEN,"models/%s.obj",filename);
+    slog(assetname);
     model->mesh = (Mesh**)gfc_allocate_array(sizeof(Mesh*),1);
     model->mesh[0] = gf3d_mesh_load(assetname);
 
@@ -250,11 +251,24 @@ void gf3d_model_update_basic_model_descriptor_set(Model *model,VkDescriptorSet d
 
 void gf3d_model_update_uniform_buffer(Model *model,uint32_t currentImage,Matrix4 modelMat)
 {
+    TextLine sky;
     void* data;
     UniformBufferObject ubo;
     ubo = gf3d_vgraphics_get_uniform_buffer_object();
     gfc_matrix_copy(ubo.model,modelMat);
     vkMapMemory(gf3d_model.device, model->uniformBuffersMemory[currentImage], 0, sizeof(UniformBufferObject), 0, &data);
+    
+    //Used for Skybox light differentiation
+    //sky = "models/dino.obj";
+    strncpy(sky,"models/dino.obj",GFCLINELEN);
+    
+    if(model->mesh[0]->filename == sky){
+            ubo.light = 0;
+        slog(" dino light");
+    }
+    else{
+        ubo.light = 1;
+    }
     
         memcpy(data, &ubo, sizeof(UniformBufferObject));
 
@@ -264,14 +278,27 @@ void gf3d_model_update_uniform_buffer(Model *model,uint32_t currentImage,Matrix4
 
 void gf3d_model_create_uniform_buffer(Model *model)
 {
+    TextLine sky;
     int i;
     Uint32 buffercount = gf3d_model.chain_length;
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
+    
     model->uniformBuffers = (VkBuffer*)gfc_allocate_array(sizeof(VkBuffer),buffercount);
     model->uniformBuffersMemory = (VkDeviceMemory*)gfc_allocate_array(sizeof(VkDeviceMemory),buffercount);
     model->uniformBufferCount = buffercount;
-
+/*
+    strncpy(sky,"models/dino.obj",GFCLINELEN);
+    
+    if(model->mesh[0]->filename == sky){
+            ubo.light = 0;
+        slog(" dino light");
+    }
+    else{
+        ubo.light = 1;
+    }
+    */
+    
+    
     for (i = 0; i < buffercount; i++)
     {
         gf3d_vgraphics_create_buffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &model->uniformBuffers[i], &model->uniformBuffersMemory[i]);

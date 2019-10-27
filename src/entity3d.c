@@ -79,6 +79,8 @@ void gf3d_entity_free(Entity *self)
     }
     self->_inuse = 0;
     gf3d_model_free(self->model);
+    //gf3d_model_free(self->idle);
+    //gf3d_model_free(self->walk);
     gf3d_body_clear(&self->body);
     if(self->data != NULL)
     {

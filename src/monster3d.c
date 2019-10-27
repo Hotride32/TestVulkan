@@ -72,16 +72,35 @@ Entity *monster_new(Vector3D position)
     //vector3d_set(self->flip,0,0);
     //vector3d_set(self->facing,-1,0);
     
-    self->model = gf3d_model_load("dino");
     
-    self->stat = 0;
+    self->walk = gf3d_model_load_animated("dino_walk",1,24);
+    self->idle = gf3d_model_load_animated("dino_attack",1,77);
+    self->model = self->walk;
     
+    self->stat = 1;
+    
+    
+    self->maxFrame = 23;
+    
+    self->frameCount =1;
+    
+     //gf3d_model_load("dino");
+//     
+//     self->stat = 0;
+//     
     gfc_matrix_identity(self->modelMat);
     
     gfc_matrix_translate(
             self->modelMat,
            self->position
     );
+    
+    
+    gfc_matrix_rotate(
+                self->modelMat,
+                self->modelMat,
+               90,
+                vector3d(1,0,0));
     
     
     gf3d_body_draw(&self->body,self->position);
@@ -106,6 +125,9 @@ void monster_draw(Entity *self)
 
 void monster_think_attacking(Entity *self)
 {
+    
+    Entity *player = player_get();
+    
    // if (gf3d_actor_get_frames_remaining(&self->actor) == 1)
     //{
         //slog("checking for hit");
@@ -121,8 +143,34 @@ void monster_think_attacking(Entity *self)
     //}
     //if (gf3d_actor_get_frames_remaining(&self->actor) <= 0)
     //{
-       // slog("back to search");
+        //slog("back to search");
+       if(self->maxFrame == 23){
+            self->model = self->idle;
+            self->maxFrame = 76;
+            self->frameCount = 1;
+       }
+            //self->frameCount = 1;
+            
+    if (player->position.x > self->position.x)
+    {
+        monster_turn(self,1);
+    }
+    if (player->position.x < self->position.x)
+    {
+        monster_turn(self,-1);
+    }
+    
+            
+            
+       if(self->frameCount >= 75){
+           //slog("back to search");
+        
+        
         self->think = monster_think_hunting;
+      
+        
+        
+         }
     //}
 }
 
@@ -180,7 +228,13 @@ void monster_turn(Entity *self,int dir)
                 self->modelMat,
                 self->modelMat,
                 -rotation,
-                vector3d(0,0,1));
+                vector3d(0,1,0));
+        /*
+        gfc_matrix_rotate(
+                self->modelMat,
+                self->modelMat,
+               90,
+                vector3d(1,0,0));*/
         
         //self->facing.x = -1;
         //self->flip.x = 0;
@@ -192,7 +246,13 @@ void monster_turn(Entity *self,int dir)
                 self->modelMat,
                 self->modelMat,
                 rotation,
-                vector3d(0,0,1));
+                vector3d(0,1,0));
+        /*
+        gfc_matrix_rotate(
+                self->modelMat,
+                self->modelMat,
+               90,
+                vector3d(1,0,0));*/
         
         //self->facing.x = 1;
         //self->flip.x = 1;
@@ -207,6 +267,11 @@ void monster_think_hunting(Entity *self)
     
     //vector3d_normalize(&self->position);
     float keep = 0.0;
+    if(self->maxFrame == 76){
+        self->model = self->walk;
+        self->maxFrame = 23;
+        self->frameCount = 1;
+    }
     
     if ((self->jumpcool) || (self->cooldown))return;
    // if (vector3d_magnitude_compare(vector3d(self->position.x - player->position.x,self->position.y - player->position.y, self->position.z - player->position.z),500) < 0)
@@ -220,7 +285,7 @@ void monster_think_hunting(Entity *self)
     if (player->position.x > self->position.x)
     {
         monster_turn(self,1);
-        position = vector3d(((self->position.x + player->position.x)/2.1), ((self->position.y + player->position.y)/2.1), self->position.z);
+        position = vector3d(((self->position.x + player->position.x)/2.5), ((self->position.y + player->position.y)/2.5), self->position.z);
         
         //((self->position.y + player->position.y)/2.1)
         
@@ -230,7 +295,7 @@ void monster_think_hunting(Entity *self)
     if (player->position.x < self->position.x)
     {
         monster_turn(self,-1);
-        position = vector3d(((self->position.x + player->position.x)/2.1), ((self->position.y + player->position.y)/2.1), self->position.z);
+        position = vector3d(((self->position.x + player->position.x)/2.5), ((self->position.y + player->position.y)/2.5), self->position.z);
         
         //keep = 0;
 //         position.x -= 0.05;
@@ -274,6 +339,8 @@ void monster_think_hunting(Entity *self)
     
     
     //slog("moving towards player");
+    
+    
     // jump to player
     //self->jumpcool = 20;
     //self->velocity.y = -10;
@@ -373,6 +440,20 @@ void monster_update(Entity *self)
     const Uint8 * keys;
     keys = SDL_GetKeyboardState(NULL);
     
+    
+     self->frameCount +=0.025;
+                 if (self->frameCount >= self->maxFrame){
+                  self->frameCount = 1;
+                  
+                 }
+    /*
+    gfc_matrix_rotate(
+                self->modelMat,
+                self->modelMat,
+                90,
+                vector3d(1,0,0));
+    */
+    
     if(keys[SDL_SCANCODE_I]){
             self->health -=10;
     }
@@ -381,6 +462,9 @@ void monster_update(Entity *self)
     {
         self->health = 0;
         //self->think = monster_die;
+        
+        //gf3d_model_free(self->walk);
+        //gf3d_model_free(self->idle);
         gf3d_entity_free(self);
         //gf3d_actor_set_action(&self->actor,"death1");
     }
@@ -404,7 +488,11 @@ void monster_update(Entity *self)
     
      gfc_matrix_make_translation(self->modelMat,self->position);
     
-    
+    gfc_matrix_rotate(
+                self->modelMat,
+                self->modelMat,
+                114.75,
+                vector3d(1,0,0));
     
 //     Vector3D position = vector3d(self->position.x - player->position.y, self->position.y - player->position.z, self->position.z - player->position.x);
 //     

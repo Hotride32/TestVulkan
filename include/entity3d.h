@@ -29,6 +29,10 @@ typedef struct Entity_S
     Model *model;
     Model *idle;
     Model *walk;
+    Model *lattack;
+    Model *mattack;
+    Model *hattack;
+    Model *skill;
     Matrix4 modelMat;
     Uint32 bufferFrame;
     float  maxFrame;

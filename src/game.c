@@ -64,7 +64,7 @@ int main(int argc,char *argv[])
    Vector3D skystate = vector3d(0,0,0);
    Vector3D skypos = vector3d(0,0,10000);
    
-   monster_spawn(vector3d(-40,-40,7.5));
+   monster_spawn(vector3d(-40,-40,0)); // changed from 7.5
    
    //pickup_spawn(vector3d(10,0,0));
   // pickup_spawn(vector3d(0,0,10));

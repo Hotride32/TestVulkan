@@ -13,6 +13,10 @@ static Entity *_player = NULL;
 void player_draw(Entity *self);
 //void player_activate(Entity *self,Entity *activator);
 void player_think(Entity *self);
+void player_attack_light(Entity *self);
+void player_attack_medium(Entity *self);
+void player_attack_heavy(Entity *self);
+void player_skill(Entity *self);
 void player_update(Entity *self);
 int  player_touch(Entity *self,Entity *other);
 int  player_damage(Entity *self,int amount, Entity *source);
@@ -164,15 +168,19 @@ Entity *player_new(Vector3D position)
     
    // vector2d_set(self->flip,0,0);
    // vector2d_set(self->facing,1,0);
-    self->walk = gf3d_model_load_animated("dun_walk",1,26);
+    self->walk = gf3d_model_load_animated("dun_walk",1,25);
     self->idle = gf3d_model_load_animated("dun_idle",1,57);
+    self->lattack = gf3d_model_load_animated("dun_attack_2",1,50);
+    self->mattack = gf3d_model_load_animated("dun_attack_1",1,60);
+    self->hattack = gf3d_model_load_animated("dun_attack_3",1,96);
+    self->skill = gf3d_model_load_animated("dun_skill",1,114);
     self->model = self->idle;
     
     
     
     self->stat = 1;
     
-    self->maxFrame = 57;
+    self->maxFrame = 56;
     
     self->frameCount = 1;
     
@@ -267,7 +275,7 @@ void player_think(Entity *self)
                   self->frameCount =1;
                   
                  }
-    
+    SDL_PumpEvents(); 
     keys = SDL_GetKeyboardState(NULL);
     float move;
     //self->angle = 0;
@@ -299,22 +307,29 @@ void player_think(Entity *self)
       
             
             
-            if(keys == NULL){
-        
+            if(!keys[SDL_SCANCODE_D] && !keys[SDL_SCANCODE_S] && !keys[SDL_SCANCODE_A] && !keys[SDL_SCANCODE_W]){
+        //keys == null
             move = 0;
+            if(self->maxFrame == 56 || (self->maxFrame == 49 && self->maxFrame <= self->frameCount)){
+                
+            }
+            else{
             self->model = self->idle;
-            self->maxFrame = 57;
+            self->maxFrame = 56;
             self->frameCount = 1;
             //self->angle = 0;
+            }
+            
+            //&& !keys[SDL_SCANCODE_T]
         }
-            if(keys[SDL_SCANCODE_D]){
+            if(keys[SDL_SCANCODE_D]&& !keys[SDL_SCANCODE_T]){
           
            
                 //self->model = gf3d_model_load_animated("dun_walk",1,25);
                 
                 self->model = self->walk;
                 
-                self->maxFrame = 25;
+                self->maxFrame = 24;
                 //self->frameCount = 1;
                 
            //move -=0.0000025;
@@ -477,7 +492,7 @@ void player_think(Entity *self)
            }
        }
        
-       if(keys[SDL_SCANCODE_A]){
+       if(keys[SDL_SCANCODE_A] && !keys[SDL_SCANCODE_T]){
           
            //move +=0.0000025;
            
@@ -527,6 +542,10 @@ void player_think(Entity *self)
             //vector3d_normalize(&self->rotation);
            
            //vector3d_angle_vectors(self->position, NULL, NULL, &self->rotation);
+           
+           self->model = self->walk;
+                
+                self->maxFrame = 24;
            
            
            if(  !keys[SDL_SCANCODE_W] && !keys[SDL_SCANCODE_S]){  
@@ -689,7 +708,7 @@ void player_think(Entity *self)
        }
        
        
-       if(keys[SDL_SCANCODE_S]){
+       if(keys[SDL_SCANCODE_S] && !keys[SDL_SCANCODE_T]){
           
         
            //move -=0.00000025;
@@ -703,6 +722,10 @@ void player_think(Entity *self)
            
            //player_set_position(vector3d(self->position.x,self->position.y+move,self->position.z));
            
+           
+           self->model = self->walk;
+                
+                self->maxFrame = 24;
            
            player_set_position(vector3d((self->position.x),self->position.y+move,self->position.z));
            
@@ -814,7 +837,7 @@ void player_think(Entity *self)
           */
           
        }
-       if(keys[SDL_SCANCODE_W]){
+       if(keys[SDL_SCANCODE_W] && !keys[SDL_SCANCODE_T]){
           
            
         
@@ -828,6 +851,10 @@ void player_think(Entity *self)
            
             //player_set_position(vector3d(_player->position.x ,_player->position.y-move,_player->position.z));
            
+           
+           self->model = self->walk;
+                
+                self->maxFrame = 24;
            
             player_set_position(vector3d(self->position.x ,self->position.y-move,self->position.z));
         
@@ -957,99 +984,25 @@ void player_think(Entity *self)
        }
        if(keys[SDL_SCANCODE_T]){
            
-           player_melee(&self);
+           //player_melee(&self);
            
+//            if(self->maxFrame == 56){
+//                 self->frameCount = 1;
+//            }
+//            self->maxFrame = 49;
+//            
+//             self->model = self->lattack;
+//                 
            
-           //player_set_position(vector3d(-move,0,0));
-           
-           //gf3d_vgraphics_rotate_camera(0.5);
-           
-           /*
-           gfc_matrix_rotate(
-                self->modelMat,
-                modelMat,
-                self->Rangle,
-                vector3d(0,1,0));
-           */
-           
-          //self->model = gf3d_model_load("dino");
-          // self->stat = 0;
-           /*
-           self->Langle = 0;
-           
-           if(self->Rangle > -90){
-                self->Rangle -= 45;
+           self->think = player_attack_light;
                 
-                gfc_matrix_rotate(
-                self->modelMat,
-                self->modelMat,
-                self->Rangle,
-                vector3d(0,1,0));
-                
-
-           }
-           else{
-            gfc_matrix_rotate(
-                    self->modelMat,
-                    self->modelMat,
-                    -self->Rangle + self->Rangle,
-                    vector3d(0,1,0));
-           }
-           */
-           
-           /*
-           gfc_matrix_translate(
-            self->modelMat,
-           vector3d(-move,0,0)
-        );
-        */
-          // if(keys[SDL_SCANCODE_T]){
+       }
+       if(keys[SDL_SCANCODE_Y]){
            
            
-//            player_set_position(vector3d(0,0,-move));
            
-           //gf3d_vgraphics_rotate_camera(0.5);
+        self->think = player_skill;   
            
-           /*
-           gfc_matrix_rotate(
-                self->modelMat,
-                modelMat,
-                self->Rangle,
-                vector3d(0,1,0));
-           */
-           
-          
-           
-           /*
-           self->Langle = 0;
-           
-           if(self->Rangle > -90){
-                self->Rangle -= 45;
-                
-                gfc_matrix_rotate(
-                self->modelMat,
-                self->modelMat,
-                self->Rangle,
-                vector3d(0,1,0));
-                
-
-           }
-           else{
-            gfc_matrix_rotate(
-                    self->modelMat,
-                    self->modelMat,
-                    -self->Rangle + self->Rangle,
-                    vector3d(0,1,0));
-           }
-           */
-           
-           /*
-           gfc_matrix_translate(
-            self->modelMat,
-           vector3d(0,0,move)
-        );
-          */ 
-       //}
        }
             /*
             if (gf2d_input_command_down("walkleft"))
@@ -1104,6 +1057,116 @@ void player_think(Entity *self)
             break;
     }
 }
+
+
+void player_attack_light(Entity* self){
+    const Uint8 * keys;
+    //SDL_PumpEvents(); 
+    keys = SDL_GetKeyboardState(NULL);
+    
+           
+           //player_melee(&self);
+           // self->frameCount +=0.025;
+                    
+    
+    
+           if(self->maxFrame == 56){
+                self->frameCount = 1;
+                self->maxFrame = 48;
+                 self->model = self->lattack;
+           }
+           
+    self->frameCount +=0.025;
+            
+            
+            if(keys[SDL_SCANCODE_T] && self->frameCount >= 30){
+             self->think = player_attack_medium; 
+             return;
+            }
+            if(!keys[SDL_SCANCODE_T] && self->frameCount >= self->maxFrame){
+             self->think = player_think; 
+             return;
+            }
+    
+}
+void player_attack_medium(Entity* self){
+    const Uint8 * keys;
+    //SDL_PumpEvents(); 
+    keys = SDL_GetKeyboardState(NULL);
+           
+           //player_melee(&self);
+           
+    //self->frameCount +=0.025;
+                 
+    
+           if(self->maxFrame == 48){
+                self->frameCount = 1;
+                self->model = self->mattack;
+                self->maxFrame = 58;
+           }
+           
+    self->frameCount +=0.025;
+            
+            
+            
+    if(keys[SDL_SCANCODE_T] && self->frameCount >= 40){
+             self->think = player_attack_heavy;   
+             return;
+            }
+    if(!keys[SDL_SCANCODE_T] && self->frameCount >= self->maxFrame){
+             self->think = player_think; 
+             return;
+            }
+}
+void player_attack_heavy(Entity* self){
+    const Uint8 * keys;
+    //SDL_PumpEvents(); 
+    keys = SDL_GetKeyboardState(NULL);
+           
+           //player_melee(&self);
+           
+    //self->frameCount +=0.025;
+    
+           if(self->maxFrame == 58){
+                self->frameCount = 1;
+                
+                self->maxFrame = 94;
+                self->model = self->hattack;
+           }
+           
+            self->frameCount +=0.025;
+    
+            if(self->frameCount >= self->maxFrame){
+             self->think = player_think;   
+             return;
+            }
+            
+            
+}
+void player_skill(Entity* self){
+    const Uint8 * keys;
+    //SDL_PumpEvents(); 
+    keys = SDL_GetKeyboardState(NULL);
+    
+    
+    if(self->maxFrame == 56){
+                self->frameCount = 1;
+                self->maxFrame = 112;
+           
+            self->model = self->skill;
+                
+    }
+    
+            
+            self->frameCount +=0.025;
+    if(self->frameCount >= self->maxFrame){
+             self->think = player_think;   
+            }
+            
+    
+}
+
+
 /*
 void player_shoot(Entity *self)
 {

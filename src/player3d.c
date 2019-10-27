@@ -164,9 +164,15 @@ Entity *player_new(Vector3D position)
     
    // vector2d_set(self->flip,0,0);
    // vector2d_set(self->facing,1,0);
-    self->model = gf3d_model_load_animated("dun_idle",1,57);
+    self->walk = gf3d_model_load_animated("dun_walk",1,26);
+    self->idle = gf3d_model_load_animated("dun_idle",1,57);
+    self->model = self->idle;
+    
+    
     
     self->stat = 1;
+    
+    self->maxFrame = 57;
     
     self->frameCount = 1;
     
@@ -204,6 +210,8 @@ Entity *player_new(Vector3D position)
     //self->free = gf3d_entity_free(self);
    // self->activate = player_activate;
 
+//     self->walk = self->model = gf3d_model_load_animated("dun_walk",1,26);
+    
     self->data = (void*)&playerData;
     
     self->health = self->healthmax = 100;
@@ -255,7 +263,7 @@ void player_think(Entity *self)
     */
     
     self->frameCount +=0.025;
-                 if (self->frameCount>=56){
+                 if (self->frameCount>=self->maxFrame){
                   self->frameCount =1;
                   
                  }
@@ -294,11 +302,21 @@ void player_think(Entity *self)
             if(keys == NULL){
         
             move = 0;
+            self->model = self->idle;
+            self->maxFrame = 57;
+            self->frameCount = 1;
             //self->angle = 0;
         }
             if(keys[SDL_SCANCODE_D]){
           
            
+                //self->model = gf3d_model_load_animated("dun_walk",1,25);
+                
+                self->model = self->walk;
+                
+                self->maxFrame = 25;
+                //self->frameCount = 1;
+                
            //move -=0.0000025;
          
            move = 0.005;
@@ -1187,11 +1205,11 @@ void player_update(Entity *self)
         vector3d(0,-0.001,0)
     );
     */
-    self->frameCount +=0.025;
-                if (self->frameCount>=56){
-                 self->frameCount =1;
-                 
-                }
+//     self->frameCount +=0.025;
+//                 if (self->frameCount>=56){
+//                  self->frameCount =1;
+//                  
+//                 }
     
     
     Vector3D camPosition = {0,0,0};
@@ -1213,6 +1231,7 @@ void player_update(Entity *self)
     /*
     entity_world_snap(self);    // error correction for collision system
     entity_apply_gravity(self);
+    */
     switch (self->state)
     {
         case ES_Idle:
@@ -1220,35 +1239,38 @@ void player_update(Entity *self)
         case ES_Seeking:
             break;
         case ES_Attacking:
-            if (gf2d_actor_get_frames_remaining(&self->actor) == 2)
-            {
-                if (self->attack == 1)
-                {
-                    player_melee(self);
-                }
-                else
-                {
-                    player_shoot(self);
-                }
-            }
+//             if (gf2d_actor_get_frames_remaining(&self->actor) == 2)
+//             {
+//                 if (self->attack == 1)
+//                 {
+//                     player_melee(self);
+//                 }
+//                 else
+//                 {
+//                     player_shoot(self);
+//                 }
+//             }
         case ES_Jumping:
         case ES_Leaving:
         case ES_Charging:
         case ES_Pain:
         case ES_Cooldown:
-            self->cooldown--;
-            if (self->cooldown <= 0)
-            {
-                self->state = ES_Idle;
-                gf2d_actor_set_action(&self->actor,"idle");
-            }
-            break;
+//             self->cooldown--;
+//             if (self->cooldown <= 0)
+//             {
+//                 self->state = ES_Idle;
+//                 gf2d_actor_set_action(&self->actor,"idle");
+//             }
+//             break;
         case ES_Walking:
+//             self->model = gf3d_model_load_animated("dun_walk",1,25);
+//                 self->maxFrame = 25;
+//                 self->frameCount = 0;
         case ES_Dying:
             return;
         case ES_Dead:
             return;
-    }*/
+    }
     
 }
 

@@ -59,12 +59,12 @@ int main(int argc,char *argv[])
    //player->model = gf3d_model_load("dino");
    //player->bufferFrame
    
-   player_spawn(vector3d(1,1,0));
+   player_spawn(vector3d(1,1,1));
    
    Vector3D skystate = vector3d(0,0,0);
-   Vector3D skypos = vector3d(0,0,10);
+   Vector3D skypos = vector3d(0,0,10000);
    
-   monster_spawn(vector3d(-40,-40,0));
+   monster_spawn(vector3d(-40,-40,7.5));
    
    //pickup_spawn(vector3d(10,0,0));
   // pickup_spawn(vector3d(0,0,10));
@@ -110,6 +110,12 @@ int main(int argc,char *argv[])
     modelMat[1][3] *= 100;
     modelMat[2][3] *= 100;
     */
+
+    gfc_matrix_make_translation(
+        modelMat,
+        vector3d(0,0,10)
+    );
+
     gfc_matrix_rotate(
         modelMat,
         modelMat,
@@ -127,11 +133,11 @@ int main(int argc,char *argv[])
     modelMat[3][2] += 100;*/
     
     modelMat[3][3] *= 0.05;
-    
-    //gfc_matrix_make_translation(
-    //    modelMat,
-   //     vector3d(0,0,20)
-   // );
+    /*
+    gfc_matrix_make_translation(
+        modelMat,
+        vector3d(0,20,0)
+    );*/
     
     //gf3d_entity_draw(player);
     

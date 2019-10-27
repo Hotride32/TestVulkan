@@ -251,25 +251,35 @@ void gf3d_model_update_basic_model_descriptor_set(Model *model,VkDescriptorSet d
 
 void gf3d_model_update_uniform_buffer(Model *model,uint32_t currentImage,Matrix4 modelMat)
 {
-    TextLine sky;
+    TextLine skybox;
     void* data;
     UniformBufferObject ubo;
     ubo = gf3d_vgraphics_get_uniform_buffer_object();
-    gfc_matrix_copy(ubo.model,modelMat);
-    vkMapMemory(gf3d_model.device, model->uniformBuffersMemory[currentImage], 0, sizeof(UniformBufferObject), 0, &data);
+    strncpy(skybox,"models/skybox.obj",GFCLINELEN);
     
-    //Used for Skybox light differentiation
-    //sky = "models/dino.obj";
-    strncpy(sky,"models/dino.obj",GFCLINELEN);
-    
-    if(model->mesh[0]->filename == sky){
+    if(model->mesh[0]->filename == skybox){
             ubo.light = 0;
-        slog(" dino light");
+        //slog(" dino light");
     }
     else{
         ubo.light = 1;
     }
     
+    gfc_matrix_copy(ubo.model,modelMat);
+    vkMapMemory(gf3d_model.device, model->uniformBuffersMemory[currentImage], 0, sizeof(UniformBufferObject), 0, &data);
+    
+    //Used for Skybox light differentiation
+    //sky = "models/dino.obj";
+//     strncpy(skybox,"models/skybox.obj",GFCLINELEN);
+//     
+//     if(model->mesh[0]->filename == skybox){
+//             ubo.light = 0;
+//         //slog(" dino light");
+//     }
+//     else{
+//         ubo.light = 1;
+//     }
+//     
         memcpy(data, &ubo, sizeof(UniformBufferObject));
 
     vkUnmapMemory(gf3d_model.device, model->uniformBuffersMemory[currentImage]);
@@ -278,7 +288,7 @@ void gf3d_model_update_uniform_buffer(Model *model,uint32_t currentImage,Matrix4
 
 void gf3d_model_create_uniform_buffer(Model *model)
 {
-    TextLine sky;
+    //TextLine sky;
     int i;
     Uint32 buffercount = gf3d_model.chain_length;
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
@@ -297,7 +307,10 @@ void gf3d_model_create_uniform_buffer(Model *model)
         ubo.light = 1;
     }
     */
+        
     
+
+
     
     for (i = 0; i < buffercount; i++)
     {

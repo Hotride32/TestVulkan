@@ -220,7 +220,9 @@ void monster_think_hunting(Entity *self)
     if (player->position.x > self->position.x)
     {
         monster_turn(self,1);
-        position = vector3d(((self->position.x + player->position.x)/2.1), ((self->position.y + player->position.y)/2.1), 0);
+        position = vector3d(((self->position.x + player->position.x)/2.1), ((self->position.y + player->position.y)/2.1), self->position.z);
+        
+        //((self->position.y + player->position.y)/2.1)
         
 //         position.x += 0.05;
        // keep +=1;
@@ -228,7 +230,7 @@ void monster_think_hunting(Entity *self)
     if (player->position.x < self->position.x)
     {
         monster_turn(self,-1);
-        position = vector3d(((self->position.x + player->position.x)/2.1), ((self->position.y + player->position.y)/2.1), 0);
+        position = vector3d(((self->position.x + player->position.x)/2.1), ((self->position.y + player->position.y)/2.1), self->position.z);
         
         //keep = 0;
 //         position.x -= 0.05;

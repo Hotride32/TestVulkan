@@ -27,8 +27,11 @@ typedef struct Entity_S
     Uint64 id;
     Uint8 _inuse;
     Model *model;
+    Model *idle;
+    Model *walk;
     Matrix4 modelMat;
     Uint32 bufferFrame;
+    float  maxFrame;
     float  frameCount;
     Uint32 stat;
     Shape shape;

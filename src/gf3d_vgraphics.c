@@ -108,7 +108,7 @@ void gf3d_vgraphics_init(
     gfc_matrix_identity(gf3d_vgraphics.ubo.model);
     gfc_matrix_identity(gf3d_vgraphics.ubo.view);
     gfc_matrix_identity(gf3d_vgraphics.ubo.proj);
-    gf3d_vgraphics.ubo.light = 1;
+    //gf3d_vgraphics.ubo.light = 1;
     
     gfc_matrix_view(
         gf3d_vgraphics.ubo.view,

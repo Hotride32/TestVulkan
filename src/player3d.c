@@ -197,6 +197,8 @@ Entity *player_new(Vector3D position)
                 114.75,
                 vector3d(1,0,0));
     
+    self->skillup = 0;
+
     gf3d_body_draw(&self->body,self->position);
     
     //self->bufferFrame = gf3d_vgraphics_render_begin();
@@ -1000,9 +1002,9 @@ void player_think(Entity *self)
        if(keys[SDL_SCANCODE_Y]){
            
            
-           
+           if(self->skillup == 3){
         self->think = player_skill;   
-           
+           }
        }
             /*
             if (gf2d_input_command_down("walkleft"))
@@ -1068,7 +1070,9 @@ void player_attack_light(Entity* self){
            //player_melee(&self);
            // self->frameCount +=0.025;
                     
-    
+    	   if(self->skillup < 3){
+		self->skillup +=1;
+	   }
     
            if(self->maxFrame == 56){
                 self->frameCount = 1;
@@ -1098,6 +1102,9 @@ void player_attack_medium(Entity* self){
            
     //self->frameCount +=0.025;
                  
+	   if(self->skillup < 3){
+		self->skillup +=1;
+	   }
     
            if(self->maxFrame == 48){
                 self->frameCount = 1;
@@ -1126,6 +1133,11 @@ void player_attack_heavy(Entity* self){
            //player_melee(&self);
            
     //self->frameCount +=0.025;
+
+
+	   if(self->skillup < 3){
+		self->skillup +=1;
+	   }
     
            if(self->maxFrame == 58){
                 self->frameCount = 1;
@@ -1148,6 +1160,7 @@ void player_skill(Entity* self){
     //SDL_PumpEvents(); 
     keys = SDL_GetKeyboardState(NULL);
     
+
     
     if(self->maxFrame == 56){
                 self->frameCount = 1;

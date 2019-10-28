@@ -65,6 +65,7 @@ typedef struct Entity_S
     float experience;
     float level;
     float otherStuff;
+    int skillup;
     void *data;
     
     

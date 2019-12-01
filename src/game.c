@@ -23,11 +23,17 @@ int main(int argc,char *argv[])
     const Uint8 * keys;
     Uint32 bufferFrame = 0;
     VkCommandBuffer commandBuffer;
+    VkCommandBuffer Buffer;
     Model *model = NULL;
     Matrix4 modelMat;
    // Model *model2 = NULL;
     Matrix4 modelMat2;
     Entity *player = NULL;
+    Texture *texture = NULL;
+    //gf3d_texture_load("images/dino.png");
+    VkImage dstimage = NULL;
+    Command * commandPool;
+    
     
     //vector3d(0,0,0);
     
@@ -55,7 +61,8 @@ int main(int argc,char *argv[])
     
     
    gf3d_entity_manager_init(2028);
-    
+   
+   
    //player->model = gf3d_model_load("dino");
    //player->bufferFrame
    
@@ -66,16 +73,28 @@ int main(int argc,char *argv[])
    
    monster_spawn(vector3d(-40,-40,0)); // changed from 7.5
    
+   //snprintf(assetname,GFCLINELEN,"images/dino.png",filename);
+   
+    //texture = gf3d_texture_load("images/dino.png");
+   
+   
    //pickup_spawn(vector3d(10,0,0));
   // pickup_spawn(vector3d(0,0,10));
    //pickup_spawn(vector3d(-10,0,0));
+   
+   
    pickup_spawn(vector3d(10,0,0));
+   
+   
    //pickup_spawn(vector3d(0,0,-10));
    
    //player_spawn(vector3d(10,0,0));
     // main game loop
     slog("gf3d main loop begin");
+    
     model = gf3d_model_load("skybox");
+    
+    
     //model = gf3d_model_load_animated("dun_idle",1,57);
     gfc_matrix_identity(modelMat);
     //model2 = gf3d_model_load("dino");
@@ -132,7 +151,7 @@ int main(int argc,char *argv[])
     modelMat[3][1] += 100;
     modelMat[3][2] += 100;*/
     
-    modelMat[3][3] *= 0.05;
+    modelMat[3][3] *= 0.005;
     /*
     gfc_matrix_make_translation(
         modelMat,
@@ -155,146 +174,10 @@ int main(int argc,char *argv[])
         
         gf3d_entity_think_all();
         
-        
+        //gf3d_swapchain_get_frame_buffer_by_index(index);
         
         
         //gf3d_vgraphics_rotate_camera(0.00005);
-        
-        if(keys == NULL){
-        
-            move = 0;
-        }
-        
-        
-       if(keys[SDL_SCANCODE_D]){
-          
-           
-           //move -=0.0000025;
-         
-           move = 0.005;
-           
-           gfc_matrix_translate(
-              modelMat2,
-            vector3d(-move,0,0)
-          );
-           
-           /*
-           
-           gfc_matrix_rotate(
-                modelMat,
-                modelMat,
-                0.002,
-                vector3d(0,0,1));
-            */
-           
-           
-           //important
-           /*
-           gfc_matrix_rotate(
-                modelMat2,
-                modelMat2,
-                -0.002,
-                vector3d(0,1,0));
-        */
-            
-       }
-       
-       if(keys[SDL_SCANCODE_S]){
-          
-        
-           //move -=0.00000025;
-           
-           
-           move = 0.005;
-           
-           /*
-           gfc_matrix_make_translation(
-            modelMat,
-            vector3d(0,move,0)
-            );
-            */
-           
-           //if(move <= -0.25){
-           //    move = -0.25;
-           //}
-           
-           /* 
-          gfc_matrix_make_translation(
-            modelMat2,
-            vector3d(0,0,move)
-            );
-        
-          modelMat[3][0] = move;
-          modelMat[3][1] = move;
-          modelMat[3][2] = move;
-          */
-          gfc_matrix_translate(
-              modelMat2,
-            vector3d(0,move,0)
-          );
-       }
-       if(keys[SDL_SCANCODE_W]){
-          
-        
-           //move +=0.0000025;
-           
-           move = 0.005;
-           
-           /*
-            gfc_matrix_make_translation(
-            modelMat,
-            vector3d(0,move,0)
-            );
-            */
-            
-           //if(move >= 0.25){
-         //      move = 0.25;
-           //}
-          /* 
-          gfc_matrix_make_translation(
-            modelMat2,
-            vector3d(0,0,move)
-            );
-        */
-          gfc_matrix_translate(
-              modelMat2,
-            vector3d(0,-move,0)
-          );
-       }
-       if(keys[SDL_SCANCODE_A]){
-          
-           //move +=0.0000025;
-           
-           move = 0.005;
-           
-         
-           gfc_matrix_translate(
-              modelMat2,
-            vector3d(move,0,0)
-          );
-           
-           
-         
-           /*
-           gfc_matrix_rotate(
-                modelMat,
-                modelMat,
-                0.002,
-                vector3d(0,0,-1));
-            */
-            
-           //important
-            /*
-           gfc_matrix_rotate(
-                modelMat2,
-                modelMat2,
-                0.02,
-                vector3d(0,1,0));
-        */
-        
-       }
-            
-        move = 0;
         
         //gf3d_entity_draw_all();
         
@@ -302,18 +185,56 @@ int main(int argc,char *argv[])
         // for each mesh, get a command and configure it from the pool
         bufferFrame = gf3d_vgraphics_render_begin();
         gf3d_pipeline_reset_frame(gf3d_vgraphics_get_graphics_pipeline(),bufferFrame);
+        
+        
+        //commandPool = gf3d_vgraphics_get_graphics_command_pool();
+      //Buffer = gf3d_command_begin_single_time(commandPool);
+      //Texture *texture = gf3d_texture_load("images/dino.png");
+     /*
+      VkImageBlit region;
+     region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+     region.srcSubresource.mipLevel = 0;
+     region.srcSubresource.baseArrayLayer = 0;
+     region.srcSubresource.layerCount = 1;
+     region.srcOffsets[0].x = 0;
+     region.srcOffsets[0].y = 0;
+     region.srcOffsets[0].z = 0;
+     region.srcOffsets[1].x = 32;
+     region.srcOffsets[1].y = 32;
+     region.srcOffsets[1].z = 1;
+     region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+     region.dstSubresource.mipLevel = 0;
+     region.dstSubresource.baseArrayLayer = 0;
+     region.dstSubresource.layerCount = 1;
+     region.dstOffsets[0].x = 0;
+     region.dstOffsets[0].y = 0;
+     region.dstOffsets[0].z = 0;
+     region.dstOffsets[1].x = 1200;
+     region.dstOffsets[1].y = 700;
+     region.dstOffsets[1].z = 1;
+ 
+     vkCmdBlitImage(Buffer, texture->textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, model->texture->textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,1, &region, VK_FILTER_LINEAR);
+     
+    
+     //gf3d_command_end_single_time(commandPool, Buffer);*/
+        
+     //commandBuffer = gf3d_command_rendering_begin(bufferFrame);
+     
+     //gf3d_swapchain_blit_to(commandBuffer,index);
+     
+     
+     //gf3d_command_end_single_time(commandPool, Buffer);
+     
+     
             commandBuffer = gf3d_command_rendering_begin(bufferFrame);
-//                 frame +=0.025;
-//                 if (frame>=56){
-//                  frame =0;
-//                  
-//                 }
+            
                 
                 
                 
                gf3d_entity_draw_all(bufferFrame,frame,commandBuffer);
                 
                 
+        
                 
         gf3d_model_draw(model,&skypos,&skystate,bufferFrame,commandBuffer,modelMat);
                 //(Uint32)frame
@@ -325,10 +246,41 @@ int main(int argc,char *argv[])
         
        // gf3d_entity_draw(player);
     
-//               gf3d_model_draw(model2,bufferFrame,commandBuffer,modelMat2);
+               //gf3d_model_draw(model2,bufferFrame,commandBuffer,modelMat2);
                 
             gf3d_command_rendering_end(commandBuffer);
-            
+    /*        
+      commandPool = gf3d_vgraphics_get_graphics_command_pool();
+      commandBuffer = gf3d_command_begin_single_time(commandPool);
+      //Texture *texture = gf3d_texture_load("images/dino.png");
+     
+      VkImageBlit region;
+     region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+     region.srcSubresource.mipLevel = 0;
+     region.srcSubresource.baseArrayLayer = 0;
+     region.srcSubresource.layerCount = 1;
+     region.srcOffsets[0].x = 0;
+     region.srcOffsets[0].y = 0;
+     region.srcOffsets[0].z = 0;
+     region.srcOffsets[1].x = 32;
+     region.srcOffsets[1].y = 32;
+     region.srcOffsets[1].z = 1;
+     region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+     region.dstSubresource.mipLevel = 0;
+     region.dstSubresource.baseArrayLayer = 0;
+     region.dstSubresource.layerCount = 1;
+     region.dstOffsets[0].x = 0;
+     region.dstOffsets[0].y = 0;
+     region.dstOffsets[0].z = 0;
+     region.dstOffsets[1].x = 1200;
+     region.dstOffsets[1].y = 700;
+     region.dstOffsets[1].z = 1;
+ 
+     vkCmdBlitImage(commandBuffer, texture->textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, model->texture->textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,1, &region, VK_FILTER_LINEAR);
+     
+    
+     gf3d_command_end_single_time(commandPool, commandBuffer);
+            */
         gf3d_vgraphics_render_end(bufferFrame);
 
         if (keys[SDL_SCANCODE_ESCAPE])done = 1; // exit condition

@@ -1212,6 +1212,13 @@ void player_shoot(Entity *self)
 void player_melee(Entity *self)
 {
     /*
+    for (i = 0; i<gf3d_entity_manager.entity_max; i++)
+    {
+        
+        
+    }
+    */
+    /*
     Shape s;
     //int i,count;
     Uint32 * max = gf3d_entity_get_max();

@@ -61,6 +61,7 @@ typedef struct
     VkSemaphore                 renderFinishedSemaphore;
         
     Pipeline                   *pipe;
+    Pipeline                   *sprite;
     
     Command                 *   graphicsCommandPool; 
     UniformBufferObject         ubo;
@@ -147,6 +148,9 @@ void gf3d_vgraphics_init(
     
     gf3d_pipeline_init(4);// how many different rendering pipelines we need
     gf3d_vgraphics.pipe = gf3d_pipeline_basic_model_create(device,"shaders/vert.spv","shaders/frag.spv",gf3d_vgraphics_get_view_extent(),1024);
+    
+    //gf3d_vgraphics.sprite = gf3d_pipeline_basic_model_create(device,"shaders/vert.spv","shaders/frag.spv",gf3d_vgraphics_get_view_extent(),1024);
+    
     gf3d_model_manager_init(1024,gf3d_swapchain_get_swap_image_count(),device);
 
     gf3d_command_system_init(8,device);
@@ -309,6 +313,16 @@ void gf3d_vgraphics_setup(
     gf3d_extensions_enable(ET_Device,"VK_KHR_swapchain");
 
     createInfo = gf3d_vgraphics_get_device_info(enableValidation);
+    
+    VkSurfaceCapabilitiesKHR surfCapabilities;
+     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(gf3d_vgraphics.gpu, gf3d_vgraphics.surface, &surfCapabilities);
+    if (!(surfCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT)) {
+        slog("Surface cannot be destination of blit - abort");
+        
+    }
+    else{
+     slog("blit works");   
+    }
     
     if (vkCreateDevice(gf3d_vgraphics.gpu, &createInfo, NULL, &gf3d_vgraphics.device) != VK_SUCCESS)
     {
@@ -699,6 +713,12 @@ Pipeline *gf3d_vgraphics_get_graphics_pipeline()
     return gf3d_vgraphics.pipe;
 }
 
+Pipeline *gf3d_vgraphics_get_sprite_pipeline()
+{
+    return gf3d_vgraphics.sprite;
+}
+
+
 Command *gf3d_vgraphics_get_graphics_command_pool()
 {
     return gf3d_vgraphics.graphicsCommandPool;
@@ -713,6 +733,41 @@ VkImageView gf3d_vgraphics_create_image_view(VkImage image, VkFormat format)
 {
     VkImageView imageView;
     VkImageViewCreateInfo viewInfo = {0};
+    
+    
+    
+    //added
+//     Command * commandPool;
+//     VkCommandBuffer commandBuffer;
+//     Texture *texture = gf3d_texture_load("images/dino.png");
+//     commandPool = gf3d_vgraphics_get_graphics_command_pool();
+//     commandBuffer = gf3d_command_begin_single_time(commandPool);
+//      gf3d_command_end_single_time(commandPool, commandBuffer);
+//     
+//     
+//      VkOffset3D blitSize;
+// 			blitSize.x = 200;
+// 			blitSize.y = 100;
+// 			blitSize.z = 1;
+// 			VkImageBlit imageBlitRegion = {0};
+// 			imageBlitRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+// 			imageBlitRegion.srcSubresource.layerCount = 1;
+// 			imageBlitRegion.srcOffsets[1] = blitSize;
+// 			imageBlitRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+// 			imageBlitRegion.dstSubresource.layerCount = 1;
+// 			imageBlitRegion.dstOffsets[1] = blitSize;
+//             
+//             vkCmdBlitImage(
+// 				commandBuffer,
+// 				texture->textureImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+// 				image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+// 				1,
+// 				&imageBlitRegion,
+// 				VK_FILTER_NEAREST);
+//     
+//     
+    //end of added
+    
 
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     viewInfo.image = image;

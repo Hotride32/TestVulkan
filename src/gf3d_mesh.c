@@ -198,6 +198,9 @@ void gf3d_mesh_render(Mesh *mesh,VkCommandBuffer commandBuffer, VkDescriptorSet 
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->pipelineLayout, 0, 1, descriptorSet, 0, NULL);
     
     vkCmdDrawIndexed(commandBuffer, mesh->faceCount * 3, 1, 0, 0, 0);
+    
+    //vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+    
 }
 
 void gf3d_mesh_setup_face_buffers(Mesh *mesh,Face *faces,Uint32 fcount)

@@ -1,15 +1,18 @@
-#version 450 
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
 
-layout( location = 0 ) in vec3 vert_texcoord;
+layout(binding = 1) uniform sampler2D texSampler;
+layout(location = 0) in vec3 fragNormal;
+layout(location = 1) in vec2 fragTexCoord;
 
-layout(set = 0,binding = 1) uniform samplerCube Cubemap;
-
-layout(location = 0) out vec4 frag_color;
-
-
-void main(){
-
-frag_color = texture( Cubemap, vert_texcoord);
+layout(location = 0) out vec4 outColor;
 
 
+void main()
+{
+    vec3 lightVector = vec3(0,0,0); //changed from (0,0,1)
+    float cosTheta = dot( fragNormal,lightVector ); //added +2
+    vec4 baseColor = texture(texSampler, fragTexCoord);
+    outColor = baseColor + baseColor * cosTheta;
+    outColor.w = baseColor.w;
 }

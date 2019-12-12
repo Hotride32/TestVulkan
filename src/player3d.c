@@ -59,6 +59,23 @@ void player_set_position(Vector3D position)
     vector3d_copy(_player->body.position,position);
 }
 
+void player_melee(Entity *self)
+{
+    
+    
+    Shape  s;
+    int x = 10 * _player->rotation.x;
+    
+    //slog("Rotation %i", x);
+    
+    // s = gf3d_shape_rect(( _player->position.x - 0.5) ,  _player->position.y,-0.5, 10, 10*  _player->rotation.y,10);
+//     
+     s = gf3d_shape_rect(_player->position.x - 0.5, _player->position.y,-0.5, 10, -10,5);
+    
+    gf3d_entity_attack(_player, 1, 8, 0);
+}
+
+
 void player_set_rotation(Vector3D rotation)
 {
     
@@ -151,14 +168,15 @@ Entity *player_new(Vector3D position)
 
    self->state = ES_Idle;
    
-    
+     
     vector3d_copy(self->position,position);
     
     
-    
+     //gf3d_rect_draw(self->shape.s.r);
+     
     vector3d_copy(self->scale,vector3d(1,1,1));
     //vector3d_set(self->scaleCenter,64,64);
-    vector3d_set(self->rotation,0,0,0);
+    vector3d_set(self->rotation,-1,1,1);
     
     
     
@@ -284,6 +302,9 @@ void player_think(Entity *self)
     
     gf3d_camera_set_view(self->modelMat);
     
+    
+    
+    
     /*
     self->frameCount += (Uint32) 0.025;
                 if (self->frameCount>= (Uint32) 56){
@@ -307,7 +328,11 @@ void player_think(Entity *self)
     {
         case ES_Idle:
       
+                
             
+//              if(keys[SDL_SCANCODE_I]){
+//             self->health -=1;
+//             }
             
             if(!keys[SDL_SCANCODE_D] && !keys[SDL_SCANCODE_S] && !keys[SDL_SCANCODE_A] && !keys[SDL_SCANCODE_W]){
         //keys == null
@@ -629,83 +654,7 @@ void player_think(Entity *self)
            rotation = 5.5;
            }
            
-               
-               
-//            if(  !keys[SDL_SCANCODE_W] && !keys[SDL_SCANCODE_S]){  
-//                
-//            
-//                player_set_position(vector3d((self->position.x+move),(self->position.y),(self->position.z)));
-//                
-//            gf3d_vgraphics_move_camera(self->modelMat, self->position);
-//                
-//            
-//            
-//            rotation = -6.25;
-//                gfc_matrix_make_translation(
-//               self->modelMat,
-//               self->position);
-//           
-//           
-//           
-//           gfc_matrix_rotate(
-//                 self->modelMat,
-//                 self->modelMat,
-//                 114.75,
-//                 vector3d(1,0,0));
-//           
-//           gfc_matrix_rotate(
-//                 self->modelMat,
-//                 self->modelMat,
-//                 6.25,
-//                 vector3d(0,1,0));
-//                
-               
-               
-               
-               
-               
-           
-          /* 
-           gfc_matrix_rotate(
-                self->modelMat,
-                self->modelMat,
-                -0.01,
-                vector3d(0,1,0));
-           
-           */
-           
-           
-           
-           
-           
-           
-//            gfc_matrix_translate(
-//               self->modelMat,
-//             vector3d(move,0,0)
-//          );
-           
-           //vector3d_angle_vectors(self->rotation,move,move,move);
-           
-           //gf3d_vgraphics_rotate_camera(0.5);
-           
-          
-           
-           /*
-           gfc_matrix_rotate(
-                modelMat,
-                modelMat,
-                0.002,
-                vector3d(0,0,-1));
-            */
-            
-           //important
-            /*
-           gfc_matrix_rotate(
-                modelMat2,
-                modelMat2,
-                0.02,
-                vector3d(0,1,0));
-        */
+
         
        }
        
@@ -986,7 +935,7 @@ void player_think(Entity *self)
        }
        if(keys[SDL_SCANCODE_T]){
            
-           //player_melee(&self);
+           //player_melee(self);
            
 //            if(self->maxFrame == 56){
 //                 self->frameCount = 1;
@@ -1003,9 +952,14 @@ void player_think(Entity *self)
            
            
            if(self->skillup == 3){
-        self->think = player_skill;   
+               self->skillup -=3;
+        self->think = player_skill;
            }
        }
+//        if(keys[SDL_SCANCODE_I]){
+//         self->health -= 1;   
+//            
+//        }
             /*
             if (gf2d_input_command_down("walkleft"))
             {
@@ -1067,7 +1021,9 @@ void player_attack_light(Entity* self){
     keys = SDL_GetKeyboardState(NULL);
     
            
-           //player_melee(&self);
+           //if(self->frameCount == self->maxFrame/2){
+            player_melee(self);
+           //}
            // self->frameCount +=0.025;
                     
     	   if(self->skillup < 3){
@@ -1097,9 +1053,10 @@ void player_attack_medium(Entity* self){
     const Uint8 * keys;
     //SDL_PumpEvents(); 
     keys = SDL_GetKeyboardState(NULL);
-           
-           //player_melee(&self);
-           
+    
+           //if(self->frameCount == self->maxFrame/2){
+            player_melee(self);
+           //}
     //self->frameCount +=0.025;
                  
 	   if(self->skillup < 3){
@@ -1130,7 +1087,7 @@ void player_attack_heavy(Entity* self){
     //SDL_PumpEvents(); 
     keys = SDL_GetKeyboardState(NULL);
            
-           //player_melee(&self);
+           player_melee(self);
            
     //self->frameCount +=0.025;
 
@@ -1169,7 +1126,9 @@ void player_skill(Entity* self){
             self->model = self->skill;
                 
     }
-    
+    //if(self->frameCount == self->maxFrame/2){
+            player_melee(self);
+          // }
             
             self->frameCount +=0.025;
     if(self->frameCount >= self->maxFrame){
@@ -1209,73 +1168,76 @@ void player_shoot(Entity *self)
     }
 }
 */
-void player_melee(Entity *self)
-{
-    /*
-    for (i = 0; i<gf3d_entity_manager.entity_max; i++)
-    {
-        
-        
-    }
-    */
-    /*
-    Shape s;
-    //int i,count;
-    Uint32 * max = gf3d_entity_get_max();
-    Entity *other = gf3d_entity_get_list();
-    Body box;
-    //Collision *c;
-    //List *collisionList = NULL;
-    s = gf3d_shape_rect(self->position.x, self->position.y, self->position.z , 16, 32,16);
-    
-    gf3d_body_set(
-        &box,
-        "hit",
-        1,
-        1,
-        //WORLD_LAYER,
-        0,
-        1,
-        self->position,
-        vector3d(0,0,0),
-        10,
-        1,
-        0,
-        &s,
-        self,
-        NULL);
-    
-    
-    //(self->flip.x * -48);
-    //collisionList = entity_get_clipped_entities(self,s, 8, 0);//MONSTER_LAYER
-    
-    for (i = 0; i<max; i++)
-    {
-        if(other->_inuse == 0)continue;
-        
-    
-        if(gf3d_body_body_collide(&box,&other->body)){
-        
-        //&& other->name == "monster"
-    
-    
-    //count = gfc_list_get_count(collisionList);
-    //slog("hit %i targets",count);
-    //for (i = 0; i < count;i++)
-    //{
-//         c = (Collision*)gfc_list_get_nth(collisionList,i);
-//         if (!c)continue;
-//         if (!c->body)continue;
-//         if (!c->body->data)continue;
-//         other = c->body->data;
-//        if (other->damage)other->damage(other,1,self);//TODO: make this based on weapon / player stats
-    //}
-    //gf3d_collision_list_free(collisionList);
-        
-    }
-    }
-        gf3d_body_clear(&box);*/
-}
+// void player_melee(Entity *self)
+// {
+//     /*
+//     for (i = 0; i<gf3d_entity_manager.entity_max; i++)
+//     {
+//         
+//         
+//     }
+//     */
+//     
+//     Shape s;
+//     //int i,count;
+//     Uint32 * max = gf3d_entity_get_max();
+//     Entity *other = gf3d_entity_get_list();
+//     Body box;
+//     //Collision *c;
+//     //List *collisionList = NULL;
+//     s = gf3d_shape_rect(self->position.x, self->position.y, self->position.z , 16, 32,16);
+//     
+//     gf3d_body_set(
+//         &box,
+//         "hit",
+//         1,
+//         1,
+//         //WORLD_LAYER,
+//         0,
+//         1,
+//         self->position,
+//         vector3d(0,0,0),
+//         10,
+//         1,
+//         0,
+//         &s,
+//         self,
+//         NULL);
+//     
+//     
+//     
+//     gf3d_entity_attack(&box,10, "monster");
+//     
+//     //(self->flip.x * -48);
+//     //collisionList = entity_get_clipped_entities(self,s, 8, 0);//MONSTER_LAYER
+//     /*
+//     for (i = 0; i<max; i++)
+//     {
+//         if(other->_inuse == 0)continue;
+//         
+//     
+//         if(gf3d_body_body_collide(&box,&other->body)){
+//         
+//         //&& other->name == "monster"
+//     
+//     
+//     //count = gfc_list_get_count(collisionList);
+//     //slog("hit %i targets",count);
+//     //for (i = 0; i < count;i++)
+//     //{
+// //         c = (Collision*)gfc_list_get_nth(collisionList,i);
+// //         if (!c)continue;
+// //         if (!c->body)continue;
+// //         if (!c->body->data)continue;
+// //         other = c->body->data;
+// //        if (other->damage)other->damage(other,1,self);//TODO: make this based on weapon / player stats
+//     //}
+//     //gf3d_collision_list_free(collisionList);
+//         
+//     }
+//     }
+//         gf3d_body_clear(&box);*/
+// }
 
 void player_update(Entity *self)
 {
@@ -1297,6 +1259,9 @@ void player_update(Entity *self)
     
     Vector3D camPosition = {0,0,0};
     if (!self)return;
+    
+    
+    
     
     //if (self->maxHealth)gui_set_health(self->health/self->maxHealth);
     //camera_set_position(camPosition);
@@ -1380,7 +1345,9 @@ int player_damage(Entity *self,int amount, Entity *source)
     //play pain sound, set pain state
     if (self->health <= 0)
     {
-        self->health = 0;
+        self->health = 1;
+        gf3d_entity_free(self);
+        
         //self->die(self);
     }
     return amount;//todo factor in shields
@@ -1388,6 +1355,9 @@ int player_damage(Entity *self,int amount, Entity *source)
 
 void player_die(Entity *self)
 {
+    
+    
+    
     
 }
 /*

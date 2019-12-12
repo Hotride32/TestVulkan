@@ -91,6 +91,7 @@ Entity *pickup_new(Vector3D position)
             self->modelMat,
            self->position
     );
+    self->health == 1000000000000000000000;
     
     //self->bufferFrame = gf3d_vgraphics_render_begin();
     //gf3d_pipeline_reset_frame(gf3d_vgraphics_get_graphics_pipeline(),self->bufferFrame);
@@ -129,6 +130,11 @@ void pickup_think(Entity *self)
         //self->dead = 1;  
         
         player = player_get();
+        if(player->health + 25 > player->healthmax){
+            player->health = player->healthmax;
+            gf3d_entity_free(self);
+        }
+        else{
             player->health += 25;
             slog("entity %f",player->health);
         
@@ -139,6 +145,7 @@ void pickup_think(Entity *self)
             player->health += 25;
             slog("entity %li",player->health);
             */
+        }
     }
     else
     {

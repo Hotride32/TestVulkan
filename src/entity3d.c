@@ -4,7 +4,7 @@
 
 #include "simple_logger.h"
 #include "entity3d.h"
-
+#include "entity_common3d.h"
 
 typedef struct
 {
@@ -139,6 +139,63 @@ void gf3d_entity_draw_all(Uint32 bufferFrame, Uint32  frameCount, VkCommandBuffe
         //gf3d_entity_manager.entity_list[i].key = key;
       gf3d_entity_draw(&gf3d_entity_manager.entity_list[i]);
     }
+}
+void gf3d_entity_damage(Entity *self,int damage)
+{
+    
+
+    if (!self)return;
+    if (!self->_inuse)return;
+ 
+    self->health -= damage;
+      if (self->health <= 0)
+     {
+         self->health = 0;
+//        
+         //gf3d_entity_free(self);
+//         
+     }
+    
+  
+}
+
+void gf3d_entity_attack(Entity *attacker,int damage, Uint32 target,int flip)
+{
+   int i;
+     for (i = 0; i < gf3d_entity_manager.entity_max;i++)
+    {
+       if (gf3d_entity_manager.entity_list[i]._inuse == 0)continue;
+       Entity *self = &gf3d_entity_manager.entity_list[i];
+       Body * b = &self->body;
+       Shape s =gf3d_body_to_shape(b);
+//        if(gf3d_shape_overlap_poc(s,atta,NULL,NULL,flip) && gf3d_entity_manager.entity_list[i].body.cliplayer == target 
+//            
+//         ){
+        if((vector3d_magnitude_between(attacker->position,self->position) < 10) && gf3d_entity_manager.entity_list[i].body.cliplayer == target 
+            
+         ){
+             slog("hit");
+             gf3d_entity_damage(&gf3d_entity_manager.entity_list[i],damage);
+             
+         }
+        
+    }
+}
+
+Entity *gf3d_entity_iterate(Entity *start)
+{
+    Entity *p = NULL;
+    if (!start)p = gf3d_entity_manager.entity_list;
+    else 
+    {
+        p = start;
+        p++;
+    }
+    for (;p != &gf3d_entity_manager.entity_list[gf3d_entity_manager.entity_max];p++)
+    {
+        if (p->_inuse)return p;
+    }
+    return NULL;
 }
 
 

@@ -354,10 +354,23 @@ void gf3d_rect_draw(Rect r)
 {
     //gf3d_draw_rect(gf3d_rect_to_sdl_rect(r),gf3d_color_to_vector4(color));
     
+    Shape s;
+    //int i,count;
+    //Uint32 * max = gf3d_entity_get_max();
+    //Entity *other = gf3d_entity_get_list();
+    //Body box;
+    //Collision *c;
+    //List *collisionList = NULL;
+    s = gf3d_shape_rect(0.5, 1,-0.5, -10, 10,5);
+    
+    Rect m = s.s.r;
+    
+    test_spawn(vector3d(m.x,m.y,m.z));
+    test_spawn(vector3d(m.h,m.w,m.d));
+    /*
     test_spawn(vector3d(r.x,r.y,r.z));
     test_spawn(vector3d(r.h,r.w,r.d));
-    
-    
+    */
     
     /*test_spawn(vector3d(r.x,r.y,r.h));
     test_spawn(vector3d(r.x,r.y,r.d));
@@ -422,7 +435,7 @@ Rect gf3d_rect_from_sdl_rect(SDL_Rect r)
     r2.h = r.h;
     return r2;
 }
-
+*/
 Uint8 gf3d_point_in_rect(Vector3D p,Rect r)
 {
     if ((p.x >= r.x) && (p.x <= r.x + r.w)&&
@@ -431,9 +444,10 @@ Uint8 gf3d_point_in_rect(Vector3D p,Rect r)
     return 0;
 }
 
-*/
-Uint8 gf3d_rect_overlap_poc(Rect a,Rect b,Vector3D *poc, Vector3D *normal)
+
+Uint8 gf3d_rect_overlap_poc(Rect a,Rect b,Vector3D *poc, Vector3D *normal, int flip)
 {
+    if(flip = 1){
     if ((a.x > b.x+b.w)||
         (b.x > a.x+a.w)||
         (a.y > b.y+b.h)||
@@ -479,12 +493,60 @@ Uint8 gf3d_rect_overlap_poc(Rect a,Rect b,Vector3D *poc, Vector3D *normal)
         }
         
     }
+    }
+    if(flip = 0){
+    if ((a.x < b.x+b.w)||
+        (b.x < a.x+a.w)||
+        (a.y < b.y+b.h)||
+        (b.y < a.y+a.h)||
+        (a.z < b.z+b.d)||
+        (b.z < a.z+a.d))
+    {
+        return 0;
+    }
+    if (poc)
+    {
+        poc->z = poc->y = poc->x = 0;
+        if (normal)normal->x = normal->y = normal->z = 0;
+        if (a.x + 1 <= b.x + b.w)
+        {
+            poc->x = a.x;
+            if (normal)normal->x = -1;
+        }
+        else if (b.x + 1 <= a.x + a.w)
+        {
+            poc->x = b.x;
+            if (normal)normal->x = 1;
+        }
+        if (a.y + 1 <= b.y + b.h)
+        {
+            poc->y = a.y;
+            if (normal)normal->y = -1;
+        }
+        if (b.y + 1 <= a.y + a.h)
+        {
+            if (normal)normal->y = 1;
+            poc->y = b.y;
+        }
+        if (a.z + 1 <= b.z + b.d)
+        {
+            poc->z = a.z;
+            if (normal)normal->z = -1;
+        }
+        if (b.z + 1 <= a.z + a.d)
+        {
+            if (normal)normal->z = 1;
+            poc->z = b.z;
+        }
+        
+    }
+    }
     return 1;
 }
 
 Uint8 gf3d_rect_overlap(Rect a,Rect b)
 {
-    return gf3d_rect_overlap_poc(a,b,NULL,NULL);
+    return gf3d_rect_overlap_poc(a,b,NULL,NULL,1);
 }
 /*
 Uint8 gf3d_point_in_cicle(Vector3D p,Circle c)
@@ -654,7 +716,7 @@ Uint8 gf3d_circle_rect_overlap(Circle a, Rect b)
     return 0;
 }
 */
-Uint8 gf3d_shape_overlap_poc(Shape a, Shape b, Vector3D *poc, Vector3D *normal)
+Uint8 gf3d_shape_overlap_poc(Shape a, Shape b, Vector3D *poc, Vector3D *normal,int flip)
 {
     //switch(a.type)
    // {
@@ -673,7 +735,7 @@ Uint8 gf3d_shape_overlap_poc(Shape a, Shape b, Vector3D *poc, Vector3D *normal)
          //   switch (b.type)
          //   {
            //     case ST_RECT:
-                    return gf3d_rect_overlap_poc(a.s.r,b.s.r,poc,normal);
+                    return gf3d_rect_overlap_poc(a.s.r,b.s.r,poc,normal,flip);
              //   case ST_CIRCLE:
                     //return gf3d_circle_rect_overlap_poc(b.s.c,a.s.r,poc,normal);
                 //case ST_EDGE:
@@ -696,7 +758,7 @@ Uint8 gf3d_shape_overlap_poc(Shape a, Shape b, Vector3D *poc, Vector3D *normal)
 
 Uint8 gf3d_shape_overlap(Shape a, Shape b)
 {
-    return gf3d_shape_overlap_poc(a,b,NULL,NULL);
+    return gf3d_shape_overlap_poc(a,b,NULL,NULL,1);
 }
 
 Shape gf3d_shape_rect(float x, float y, float z, float w, float h, float d)

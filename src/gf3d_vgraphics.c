@@ -4,6 +4,7 @@
 
 #include <SDL.h>
 #include <SDL_vulkan.h>
+#include <SDL_ttf.h>
 #include <vulkan/vulkan.h>
 #include <limits.h>
 #include <string.h>
@@ -28,7 +29,8 @@
 typedef struct
 {
     SDL_Window                 *main_window;
-
+    SDL_Renderer * renderer;
+    
     VkApplicationInfo           vk_app_info;
 
     VkInstance                  vk_instance;
@@ -184,6 +186,17 @@ void gf3d_vgraphics_setup(
         slog("Unable to initilaize SDL system: %s",SDL_GetError());
         return;
     }
+    TTF_Init();
+    
+//     //Initialize SDL_ttf
+//     if( TTF_Init() == -1 )
+//     {
+//         return false;    
+//     }
+//     
+    
+    
+    atexit(TTF_Quit);
     atexit(SDL_Quit);
     if (fullscreen)
     {
@@ -209,7 +222,35 @@ void gf3d_vgraphics_setup(
         exit(0);
         return;
     }
-
+    /*
+    gf3d_vgraphics.renderer = SDL_CreateRenderer(gf3d_vgraphics.main_window, -1, 0);*/
+    
+   /* 
+    TTF_Font * font = TTF_OpenFont("font.ttf", 25);
+    
+    SDL_Color color = { 255, 255, 255 };
+    SDL_Surface * surface = TTF_RenderText_Solid(font,"Welcome to Gigi Labs", color);
+    
+    SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surface);
+    
+    //SDL_RenderCopy(renderer, texture, NULL, NULL);
+   // SDL_RenderPresent(renderer);
+    
+    int texW = 0;
+    int texH = 0;
+    SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
+    SDL_Rect dstrect = { 0, 0, texW, texH };
+    
+    
+    	
+    SDL_RenderCopy(renderer, texture, NULL, &dstrect);
+    SDL_RenderPresent(renderer);
+    
+    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(surface);
+    TTF_CloseFont(font);
+    SDL_DestroyRenderer(renderer);*/
+   
     // instance extension configuration
     gf3d_extensions_instance_init();
     
@@ -361,6 +402,10 @@ void gf3d_vgraphics_close()
     {
         SDL_DestroyWindow(gf3d_vgraphics.main_window);
     }
+//      if (gf3d_vgraphics.renderer)
+//     {
+//         SDL_DestroyRenderer(gf3d_vgraphics.renderer);
+//     }
     if (gf3d_vgraphics.vk_instance)
     {
         vkDestroyInstance(gf3d_vgraphics.vk_instance, NULL);
@@ -382,6 +427,11 @@ VkExtent2D gf3d_vgraphics_get_view_extent()
 {
     return gf3d_swapchain_get_extent();
 }
+
+// SDL_Renderer *gf3d_vgraphics_get_renderer()
+// {
+//     return gf3d_vgraphics.renderer;
+// }
 
 
 VkDeviceCreateInfo gf3d_vgraphics_get_device_info(Bool enableValidationLayers)
@@ -729,7 +779,7 @@ UniformBufferObject gf3d_vgraphics_get_uniform_buffer_object()
     return gf3d_vgraphics.ubo;
 }
 
-VkImageView gf3d_vgraphics_create_image_view(VkImage image, VkFormat format)
+VkImageView gf3d_vgraphics_create_image_view(VkImage image, VkFormat format,int mipLevels)
 {
     VkImageView imageView;
     VkImageViewCreateInfo viewInfo = {0};
@@ -773,9 +823,10 @@ VkImageView gf3d_vgraphics_create_image_view(VkImage image, VkFormat format)
     viewInfo.image = image;
     viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
     viewInfo.format = format;
+    
     viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     viewInfo.subresourceRange.baseMipLevel = 0;
-    viewInfo.subresourceRange.levelCount = 1;
+    viewInfo.subresourceRange.levelCount = mipLevels;
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
 

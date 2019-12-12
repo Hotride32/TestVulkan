@@ -7,6 +7,8 @@
 #include "gf3d_vqueues.h"
 #include "gf3d_vgraphics.h"
 #include "gf3d_texture.h"
+#include "entity3d.h"
+#include "player3d.h"
 
 typedef struct
 {
@@ -38,7 +40,11 @@ void gf3d_swapchain_close();
 int gf3d_swapchain_choose_format();
 void gf3d_swapchain_create_depth_image();
 VkImage *gf3d_swapchain_get_images(Uint32 index);
-void gf3d_swapchain_blit_to(VkCommandBuffer commandBuffer,Uint32 index);
+
+void gf3d_swapchain_blit_to(VkCommandBuffer commandBuffer,Uint32 srcWidthStart,Uint32 srcWidthEnd,Uint32 srcHeightStart,Uint32 srcHeightEnd,Uint32 dstWidthStart,Uint32 dstWidthEnd,Uint32 dstHeightStart,Uint32 dstHeightEnd,Texture *texture);
+
+void gf3d_swapchain_blit_health(VkCommandBuffer commandBuffer,Uint32 srcWidthStart,Uint32 srcWidthEnd,Uint32 srcHeightStart,Uint32 srcHeightEnd,Uint32 dstWidthStart,Uint32 dstWidthEnd,Uint32 dstHeightStart,Uint32 dstHeightEnd,Texture *texture);
+
 int gf3d_swapchain_get_presentation_mode();
 VkExtent2D gf3d_swapchain_configure_extent(Uint32 width,Uint32 height);
 uint32_t gf3d_swapchain_find_Memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties);
@@ -213,7 +219,7 @@ void gf3d_swapchain_create(VkDevice device,VkSurfaceKHR surface)
     
     for (i = 0 ; i < gf3d_swapchain.swapImageCount; i++)
     {
-        gf3d_swapchain.imageViews[i] = gf3d_vgraphics_create_image_view(gf3d_swapchain.swapImages[i],gf3d_swapchain.formats[gf3d_swapchain.chosenFormat].format);
+        gf3d_swapchain.imageViews[i] = gf3d_vgraphics_create_image_view(gf3d_swapchain.swapImages[i],gf3d_swapchain.formats[gf3d_swapchain.chosenFormat].format,1);
     }
     slog("create image views");
 }
@@ -791,7 +797,7 @@ VkImage *gf3d_swapchain_get_images(Uint32 index){
 }
 
 
-void gf3d_swapchain_blit_to(VkCommandBuffer commandBuffer,Uint32 index){
+void gf3d_swapchain_blit_to(VkCommandBuffer commandBuffer,Uint32 srcWidthStart,Uint32 srcWidthEnd,Uint32 srcHeightStart,Uint32 srcHeightEnd,Uint32 dstWidthStart,Uint32 dstWidthEnd,Uint32 dstHeightStart,Uint32 dstHeightEnd,Texture *texture){
 
     VkImageSubresourceRange ImageSubresourceRange;
    ImageSubresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -819,9 +825,12 @@ void gf3d_swapchain_blit_to(VkCommandBuffer commandBuffer,Uint32 index){
     
     
     
-    Texture *texture = gf3d_texture_load("images/dino.png");
+    //Texture *texture = gf3d_texture_load("images/dino.png");
     
     VkImage srcImage = texture->textureImage;
+    
+    //vkCmdClearColorImage(commandBuffer, srcImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &ClearColorValue, 1, &ImageSubresourceRange);
+    
     
     //VkExtent2D dstextent = textureImageView;
     
@@ -958,13 +967,13 @@ void gf3d_swapchain_blit_to(VkCommandBuffer commandBuffer,Uint32 index){
              VkImageBlit blit = {0};
              
      
-             blit.srcOffsets[0].x = 0;
-             blit.srcOffsets[0].y = 0;
+             blit.srcOffsets[0].x = srcWidthStart;//0
+             blit.srcOffsets[0].y = srcHeightStart;//0
              blit.srcOffsets[0].z = 0;
-         //blit.srcOffsets[1].x = Width;
-         //blit.srcOffsets[1].y = Height;
-             blit.srcOffsets[1].x = 32;
-             blit.srcOffsets[1].y = 32;
+         blit.srcOffsets[1].x = srcWidthEnd;
+         blit.srcOffsets[1].y = srcHeightEnd;
+             //blit.srcOffsets[1].x = 32;
+            // blit.srcOffsets[1].y = 32;
              blit.srcOffsets[1].z = 1;
              blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
              
@@ -975,15 +984,23 @@ void gf3d_swapchain_blit_to(VkCommandBuffer commandBuffer,Uint32 index){
     blit.srcSubresource.layerCount = 1;
              */
              
+      Entity *player;
+        player = player_get();
+      
+      
              blit.srcSubresource.mipLevel = 0;
              blit.srcSubresource.baseArrayLayer = 0;
              blit.srcSubresource.layerCount = 1;
-             blit.dstOffsets[0].x = 0;
-             blit.dstOffsets[0].y = 0;
+             blit.dstOffsets[0].x = dstWidthStart;//0
+             blit.dstOffsets[0].y = dstHeightStart;//0
              blit.dstOffsets[0].z = 0;
         
-             blit.dstOffsets[1].x = 500;
-             blit.dstOffsets[1].y = 200;
+             //blit.dstOffsets[1].x = player->health;//500
+             //blit.dstOffsets[1].y = player->health;//200
+             
+             blit.dstOffsets[1].x = dstWidthEnd;//500
+             blit.dstOffsets[1].y = dstHeightEnd;//200
+             
              blit.dstOffsets[1].z = 1 ;
              blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
              
@@ -1090,4 +1107,355 @@ void gf3d_swapchain_blit_to(VkCommandBuffer commandBuffer,Uint32 index){
 //             gf3d_swapchain.imageViews[index] = gf3d_vgraphics_create_image_view(dstImage,gf3d_swapchain.formats[gf3d_swapchain.chosenFormat].format);
             
 }
+void gf3d_swapchain_blit_health(VkCommandBuffer commandBuffer,Uint32 srcWidthStart,Uint32 srcWidthEnd,Uint32 srcHeightStart,Uint32 srcHeightEnd,Uint32 dstWidthStart,Uint32 dstWidthEnd,Uint32 dstHeightStart,Uint32 dstHeightEnd,Texture *texture){
+
+    VkImageSubresourceRange ImageSubresourceRange;
+   ImageSubresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+   ImageSubresourceRange.baseMipLevel   = 0;
+   ImageSubresourceRange.levelCount     = 1;
+   ImageSubresourceRange.baseArrayLayer = 0;
+   ImageSubresourceRange.layerCount     = 1;
+
+   VkClearColorValue ClearColorValue = {{ 1.0, 0.0, 0.0, 0.0 }};
+
+   for (int i = 0; i < gf3d_swapchain.swapImageCount; i++)
+   {
+      //VkCommandBuffer CommandBuffer = CommandBuffers[i];
+
+      //Result = vkBeginCommandBuffer(CommandBuffer, &CommandBufferBeginInfo);
+
+      //PrintVkResult("vkBeginCommandBuffer", Result);
+
+      //vkCmdClearColorImage(commandBuffer, gf3d_swapchain.swapImages[i], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &ClearColorValue, 1, &ImageSubresourceRange);
+
+     // Result = vkEndCommandBuffer(CommandBuffer);
+
+      //PrintVkResult("vkEndCommandBuffer", Result);
+   //}
+    
+    
+    
+    //Texture *texture = gf3d_texture_load("images/dino.png");
+    
+    VkImage srcImage = texture->textureImage;
+    
+    
+//     for (int i = 0; i < gf3d_swapchain.swapImageCount; i++)
+//    {
+//       //VkCommandBuffer CommandBuffer = CommandBuffers[i];
+// 
+//       //Result = vkBeginCommandBuffer(CommandBuffer, &CommandBufferBeginInfo);
+// 
+//       //PrintVkResult("vkBeginCommandBuffer", Result);
+// 
+        vkCmdClearColorImage(commandBuffer, srcImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &ClearColorValue, 1, &ImageSubresourceRange);
+// 
+//       //Result = vkEndCommandBuffer(CommandBuffer);
+// 
+//       //PrintVkResult("vkEndCommandBuffer", Result);
+//    }
+//     
+   // vkCmdClearColorImage(commandBuffer, srcImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &ClearColorValue, 1, &ImageSubresourceRange);
+    
+    
+    //VkExtent2D dstextent = textureImageView;
+    
+    VkImage dstImage = NULL;
+    /*
+    vkGetSwapchainImagesKHR(gf3d_swapchain.device, gf3d_swapchain.swapChain, &gf3d_swapchain.swapImageCount, NULL);
+    if (gf3d_swapchain.swapImageCount == 0)
+    {
+        slog("failed to create any swap images!");
+        gf3d_swapchain_close();
+        return;
+    }
+    gf3d_swapchain.swapImages = (VkImage *)gfc_allocate_array(sizeof(VkImage),gf3d_swapchain.swapImageCount);*/
+    //vkGetSwapchainImagesKHR(gf3d_swapchain.device, gf3d_swapchain.swapChain, &gf3d_swapchain.swapImageCount,gf3d_swapchain.swapImages );
+    //slog("created swap chain with %i images",gf3d_swapchain.swapImageCount);
+    
+    
+    //vSwapChain swap = gf3d_swapchain_get_images(index);
+//     if(index > gf3d_swapchain.swapImageCount){
+//      dstImage = gf3d_swapchain.swapImages[0];  
+//     }
+//     else{
+     
+     
+     
+     dstImage = gf3d_swapchain.swapImages[i];
+    
+    //dstImage = gf3d_swapchain_get_frame_buffer_by_index(index)->image;
+     
+     
+     //}
+    //dstImage = gf3d_swapchain.depthImage;
+    
+    if(dstImage == NULL){
+        slog("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
+    }
+    
+    VkExtent2D dstextent = gf3d_swapchain_get_extent();
+    
+    //texture.TextureImage;
+    
+    //slog("dstImage file %s",dstImage);
+    
+    //slog("dstImage width %i",dstextent.width);
+   // slog("dstImage height %i",dstextent.height);
+    
+    VkImageMemoryBarrier barrier = {0};
+        barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        barrier.image = srcImage;
+        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        
+        barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        barrier.subresourceRange.baseMipLevel = 0;
+        barrier.subresourceRange.levelCount = 1;
+        barrier.subresourceRange.baseArrayLayer = 0;
+        barrier.subresourceRange.layerCount = 1;
+
+    /*   
+    VkImageMemoryBarrier barrier2 = {0};
+        barrier2.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        barrier2.image = dstImage;
+        barrier2.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier2.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier2.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        barrier2.subresourceRange.baseArrayLayer = 0;
+        barrier2.subresourceRange.layerCount = 1;
+        barrier2.subresourceRange.levelCount = 1;    
+        
+        barrier2.subresourceRange.baseMipLevel = 0;
+            barrier2.oldLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+            barrier2.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            barrier2.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+            barrier2.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        */
+        
+        int mipWidth = dstextent.width ;
+        int mipHeight = dstextent.height;
+        //int mipLevels = 1;
+        int Width = 1024 ;
+        int Height = 1024 ;
+       /* 
+        copyCmd,
+			srcImage,
+			VK_ACCESS_MEMORY_READ_BIT,
+			VK_ACCESS_TRANSFER_READ_BIT,
+			VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+			VK_PIPELINE_STAGE_TRANSFER_BIT,
+			VK_PIPELINE_STAGE_TRANSFER_BIT,
+			VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+        */
+       
+        //for (Uint32 i = 1; i < mipLevels; i++) {
+            //barrier.subresourceRange.baseMipLevel = i - 1;
+            
+            barrier.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+            barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+            barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+            vkCmdPipelineBarrier(commandBuffer,
+                VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+                0, NULL,
+                0, NULL,
+                1, &barrier);
+
+            
+            
+               
+    VkImageMemoryBarrier barrier2 = {0};
+        barrier2.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        barrier2.image = dstImage;
+        barrier2.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier2.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        barrier2.subresourceRange.baseMipLevel = 0;
+        barrier2.subresourceRange.levelCount = 1;
+        barrier2.subresourceRange.baseArrayLayer = 0;
+        barrier2.subresourceRange.layerCount = 1;
+            barrier2.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            barrier2.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            barrier2.srcAccessMask = 0;
+            barrier2.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        
+            vkCmdPipelineBarrier(commandBuffer,
+                VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
+                0, NULL,
+                0, NULL,
+                1, &barrier2);
+            
+           
+            
+             VkImageBlit blit = {0};
+             
+     
+             blit.srcOffsets[0].x = srcWidthStart;//0
+             blit.srcOffsets[0].y = srcHeightStart;//0
+             blit.srcOffsets[0].z = 0;
+         blit.srcOffsets[1].x = srcWidthEnd;
+         blit.srcOffsets[1].y = srcHeightEnd;
+             //blit.srcOffsets[1].x = 32;
+            // blit.srcOffsets[1].y = 32;
+             blit.srcOffsets[1].z = 1;
+             blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+             
+      /*       
+    blit.srcSubresource.baseMipLevel = 0;
+    blit.srcSubresource.levelCount = 1;
+    blit.srcSubresource.baseArrayLayer = 0;
+    blit.srcSubresource.layerCount = 1;
+             */
+             
+      Entity *player;
+    player = player_get();
+      if(player != NULL){
+      
+             blit.srcSubresource.mipLevel = 0;
+             blit.srcSubresource.baseArrayLayer = 0;
+             blit.srcSubresource.layerCount = 1;
+             blit.dstOffsets[0].x = dstWidthStart;//0
+             blit.dstOffsets[0].y = dstHeightStart;//0
+             blit.dstOffsets[0].z = 0;
+        
+             //blit.dstOffsets[1].x = player->health;//500
+             //blit.dstOffsets[1].y = player->health;//200
+             
+             blit.dstOffsets[1].x = player->health;//500
+             blit.dstOffsets[1].y = player->health;//200
+             
+             blit.dstOffsets[1].z = 1 ;
+             blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+             
+            //blit.dstSubresource.baseMipLevel = 0;
+           // blit.dstSubresource.levelCount = 1;
+            //blit.dstSubresource.baseArrayLayer = 0;
+            //blit.dstSubresource.layerCount = 1;
+             
+             
+             blit.dstSubresource.mipLevel = 0;
+             blit.dstSubresource.baseArrayLayer = 0;
+             blit.dstSubresource.layerCount = 1;
+            
+             
+             //something wrong with blit
+            vkCmdBlitImage(commandBuffer,
+                srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                1, &blit,
+                VK_FILTER_LINEAR);
+            //slog("blit");
+            
+            
+            
+            
+            
+            
+            
+            barrier.subresourceRange.baseMipLevel = 0;
+            barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+            barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+            barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+            vkCmdPipelineBarrier(commandBuffer,
+                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+                0, NULL,
+                0, NULL,
+                1, &barrier);
+
+            
+            barrier2.subresourceRange.baseMipLevel = 0;
+            barrier2.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            barrier2.newLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            barrier2.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            barrier2.dstAccessMask = 0;
+        
+            vkCmdPipelineBarrier(commandBuffer,
+                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0,
+                0, NULL,
+                0, NULL,
+                1, &barrier2);
+
+      }
+      else{
+          blit.srcSubresource.mipLevel = 0;
+             blit.srcSubresource.baseArrayLayer = 0;
+             blit.srcSubresource.layerCount = 1;
+             blit.dstOffsets[0].x = dstWidthStart;//0
+             blit.dstOffsets[0].y = dstHeightStart;//0
+             blit.dstOffsets[0].z = 0;
+        
+             //blit.dstOffsets[1].x = player->health;//500
+             //blit.dstOffsets[1].y = player->health;//200
+             
+             blit.dstOffsets[1].x = 1;//500
+             blit.dstOffsets[1].y = 1;//200
+             
+             blit.dstOffsets[1].z = 1 ;
+             blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+             
+            //blit.dstSubresource.baseMipLevel = 0;
+           // blit.dstSubresource.levelCount = 1;
+            //blit.dstSubresource.baseArrayLayer = 0;
+            //blit.dstSubresource.layerCount = 1;
+             
+             
+             blit.dstSubresource.mipLevel = 0;
+             blit.dstSubresource.baseArrayLayer = 0;
+             blit.dstSubresource.layerCount = 1;
+            
+             
+             //something wrong with blit
+            vkCmdBlitImage(commandBuffer,
+                srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                1, &blit,
+                VK_FILTER_LINEAR);
+            //slog("blit");
+            
+            
+            
+            
+            
+            
+            
+            barrier.subresourceRange.baseMipLevel = 0;
+            barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+            barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+            barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+            vkCmdPipelineBarrier(commandBuffer,
+                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
+                0, NULL,
+                0, NULL,
+                1, &barrier);
+
+            
+            barrier2.subresourceRange.baseMipLevel = 0;
+            barrier2.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            barrier2.newLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            barrier2.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            barrier2.dstAccessMask = 0;
+        
+            vkCmdPipelineBarrier(commandBuffer,
+                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0,
+                0, NULL,
+                0, NULL,
+                1, &barrier2);
+          
+      }
+            //gf3d_swapchain.imageViews = (VkImageView *)gfc_allocate_array(sizeof(VkImageView),gf3d_swapchain.swapImageCount);
+    
+    
+   }   
+            
+//             gf3d_swapchain.imageViews[index] = gf3d_vgraphics_create_image_view(dstImage,gf3d_swapchain.formats[gf3d_swapchain.chosenFormat].format);
+            
+}
+
 /*eol@eof*/

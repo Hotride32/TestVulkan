@@ -78,6 +78,7 @@ void gf3d_entity_manager_init(Uint32 entity_max);
 
 Entity *gf3d_entity_new();
 
+Entity *gf3d_entity_iterate(Entity *start);
 
 void gf3d_entity_free(Entity *self);
 

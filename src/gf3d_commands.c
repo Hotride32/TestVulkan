@@ -8,6 +8,8 @@
 #include "gf3d_swapchain.h"
 #include "gf3d_mesh.h"
 #include "gf3d_texture.h"
+#include "entity3d.h"
+#include "player3d.h"
 
  // TODO: Make a command buffer resource manager
 
@@ -21,6 +23,9 @@ typedef struct
 
 
 static CommandManager gf3d_commands = {0};
+
+static int state = 0;
+
 
 void gf3d_command_pool_close();
 void gf3d_command_free(Command *com);
@@ -168,227 +173,271 @@ void gf3d_command_configure_render_pass_end(VkCommandBuffer commandBuffer)
     vkCmdEndRenderPass(commandBuffer);
 }
 
-VkCommandBuffer gf3d_command_rendering_begin(Uint32 index)
+VkCommandBuffer gf3d_command_rendering_begin(Uint32 index, int *done)
 {
+     int mousex,mousey;
+    const Uint8 * keys;
+     
+    //int state;
+    
     VkCommandBuffer commandBuffer;
     Pipeline *pipe;
     pipe = gf3d_vgraphics_get_graphics_pipeline();
+    SDL_Event event;
+    Rect button;
+    Vector3D mousepoint;
+    
+    //Entity *player;
+    //player = player_get();
+    
+    Texture *spawnm = gf3d_texture_load("images/spawnm.png");
+    Texture *pointer = gf3d_texture_load("images/pointer.png");
+    Texture *test = gf3d_texture_load("images/test.png");
+    Texture *yes = gf3d_texture_load("images/yes.png");
+    Texture *no = gf3d_texture_load("images/no.png");
+    Texture *level1 = gf3d_texture_load("images/level1.png");
+    Texture *level2 = gf3d_texture_load("images/level2.png");
+    Texture *start = gf3d_texture_load("images/start.png");
+    Texture *bg_flat = gf3d_texture_load("images/bg_flat.png");
+    Texture *quit = gf3d_texture_load("images/quit.png");
+    Texture *select = gf3d_texture_load("images/select.png");
+    
+    //Texture *text = gf3d_texture_load_text("images/dino_attack.png");
+    
+    SDL_PumpEvents();   // update SDL's internal event structures
+        
+        SDL_GetMouseState(&mousex,&mousey);
+    
+        //button.x = 0;
+       // button.y = 0;
+        //button.w = 0;
+        //button.h = 0;
+        
+        
+        mousepoint.x = mousex;
+        mousepoint.y = mousey;
+        
+        SDL_ShowCursor(SDL_DISABLE);
     
     commandBuffer = gf3d_command_begin_single_time(gf3d_vgraphics_get_graphics_command_pool());
   
-    //vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+//     if(player != NULL){
+//     
+    //gf3d_swapchain_blit_to(commandBuffer,0,1024,0,1024,0,player->health, 0,200,texture);
+//     }
+    //else{
+    keys = SDL_GetKeyboardState(NULL);
     
-     gf3d_swapchain_blit_to(commandBuffer,index);
+    if(keys[SDL_SCANCODE_M]){
     
-     
-     //now in swapchain
-    /*  
-    Texture *texture = gf3d_texture_load("images/dino.png");
-    
-    VkImage srcImage = texture->textureImage;
-    
-    //VkExtent2D dstextent = textureImageView;
-    
-    VkImage dstImage = NULL;
-    
-    //vSwapChain swap = gf3d_swapchain_get_images(index);
-    
-    dstImage = gf3d_swapchain_get_images(index);
-    
-    if(dstImage == NULL){
-        slog("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD");
+        button.x = 700;
+        button.y = 0;
+        button.w = 1200;
+        button.h = 69;
+        
+        gf3d_swapchain_blit_to(commandBuffer,0,500,0,69,700, 1200, 0,69,spawnm);
+        
+        if(mousex+32 > 1200 || mousey+32 > 700){
+        gf3d_swapchain_blit_to(commandBuffer,0,32,0,32,mousex, mousex, mousey,mousey,pointer);
+        }
+        else{
+            gf3d_swapchain_blit_to(commandBuffer,0,32,0,32,mousex,32+mousex, mousey,32+mousey,pointer);
+        }
+        
     }
     
-    VkExtent2D dstextent = gf3d_swapchain_get_extent();
     
-    //texture.TextureImage;
     
-    //slog("dstImage file %s",dstImage);
-    
-    slog("dstImage width %i",dstextent.width);
-    slog("dstImage height %i",dstextent.height);
-    
-    VkImageMemoryBarrier barrier = {0};
-        barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        barrier.image = srcImage;
-        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        
-        barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        barrier.subresourceRange.baseMipLevel = 0;
-        barrier.subresourceRange.levelCount = 1;
-        barrier.subresourceRange.baseArrayLayer = 0;
-        barrier.subresourceRange.layerCount = 1;
-
-      
-    VkImageMemoryBarrier barrier2 = {0};
-        barrier2.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        barrier2.image = dstImage;
-        barrier2.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier2.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier2.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        barrier2.subresourceRange.baseArrayLayer = 0;
-        barrier2.subresourceRange.layerCount = 1;
-        barrier2.subresourceRange.levelCount = 1;    
-        
-        barrier2.subresourceRange.baseMipLevel = 0;
-            barrier2.oldLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-            barrier2.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-            barrier2.srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-            barrier2.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-        
-        int mipWidth = dstextent.width ;
-        int mipHeight = dstextent.height;
-        //int mipLevels = 1;
-        int Width = 819 ;
-        int Height = 614 ;
-       
-        copyCmd,
-			srcImage,
-			VK_ACCESS_MEMORY_READ_BIT,
-			VK_ACCESS_TRANSFER_READ_BIT,
-			VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-			VK_PIPELINE_STAGE_TRANSFER_BIT,
-			VK_PIPELINE_STAGE_TRANSFER_BIT,
-			VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
-        
-       
-        //for (Uint32 i = 1; i < mipLevels; i++) {
-            //barrier.subresourceRange.baseMipLevel = i - 1;
-          
-            barrier.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-            barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
-            barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-
-            vkCmdPipelineBarrier(commandBuffer,
-                VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
-                0, NULL,
-                0, NULL,
-                1, &barrier);
-
-            
-            
-               
-    VkImageMemoryBarrier barrier2 = {0};
-        barrier2.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        barrier2.image = dstImage;
-        barrier2.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier2.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        barrier2.subresourceRange.baseMipLevel = 0;
-        barrier2.subresourceRange.levelCount = 1;
-        barrier2.subresourceRange.baseArrayLayer = 0;
-        barrier2.subresourceRange.layerCount = 1;
-            barrier2.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            barrier2.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-            barrier2.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
-            barrier2.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        
-            vkCmdPipelineBarrier(commandBuffer,
-                VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
-                0, NULL,
-                0, NULL,
-                1, &barrier2);
-            
-           
-            
-             VkImageBlit blit = {0};
-             
+   gf3d_swapchain_blit_health(commandBuffer,0,50,0,50,0, 500, 0,200,test);
      
-             blit.srcOffsets[0].x = 0;
-             blit.srcOffsets[0].y = 0;
-             blit.srcOffsets[0].z = 0;
-         blit.srcOffsets[1].x = Width;
-         blit.srcOffsets[1].y = Height;
-             //blit.srcOffsets[1].x = 32;
-             //blit.srcOffsets[1].y = 32;
-             blit.srcOffsets[1].z = 1;
-             blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-              
-   // blit.srcSubresource.baseMipLevel = 0;
-    //blit.srcSubresource.levelCount = 1;
-   // blit.srcSubresource.baseArrayLayer = 0;
-    //blit.srcSubresource.layerCount = 1;
-             
-             blit.srcSubresource.mipLevel = 0;
-             blit.srcSubresource.baseArrayLayer = 0;
-             blit.srcSubresource.layerCount = 1;
-             blit.dstOffsets[0].x = 0;
-             blit.dstOffsets[0].y = 0;
-             blit.dstOffsets[0].z = 0;
+  // gf3d_swapchain_blit_to(commandBuffer,0,1200,0,700,0, 1200, 0,700,bg_flat);
+//    gf3d_swapchain_blit_to(commandBuffer,0,111,0,61,700, 700+111, 500,500+61,no);
+//    gf3d_swapchain_blit_to(commandBuffer,0,138,0,71,400, 400+138, 500,500+71,yes);
+   //gf3d_swapchain_blit_to(commandBuffer,0,178,0,64,511, 511+178, 200,200+64,start);
+   //gf3d_swapchain_blit_to(commandBuffer,0,212,0,65,300, 300+212, 350,350+65,level1);
+  // gf3d_swapchain_blit_to(commandBuffer,0,235,0,66,700, 700+235, 350,350+66,level2);
+   
+   
+   
+   Rect startr;
+   /*
+        startr.x = 511;
+        startr.y = 200;
+        startr.w = 178;
+        startr.h = 64;
+   */
+   Rect yesr;
+   /*
+        yesr.x = 400;
+        yesr.y = 500;
+        yesr.w = 138;
+        yesr.h = 71;
+   */
+   Rect nor;
+   /*
+        nor.x = 700;
+        nor.y = 500;
+        nor.w = 111;
+        nor.h = 61;
+        */
+   Rect level1r;
+   /*
+        level1r.x = 300;
+        level1r.y = 350;
+        level1r.w = 212;
+        level1r.h = 65;*/
         
-             blit.dstOffsets[1].x = mipWidth;
-             blit.dstOffsets[1].y = mipHeight;
-             blit.dstOffsets[1].z = 1 ;
-             blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-             
-            //blit.dstSubresource.baseMipLevel = 0;
-           // blit.dstSubresource.levelCount = 1;
-            //blit.dstSubresource.baseArrayLayer = 0;
-            //blit.dstSubresource.layerCount = 1;
-             
-             
-             blit.dstSubresource.mipLevel = 0;
-             blit.dstSubresource.baseArrayLayer = 0;
-             blit.dstSubresource.layerCount = 1;
-            
-             
-             //something wrong with blit
-            vkCmdBlitImage(commandBuffer,
-                srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                1, &blit,
-                VK_FILTER_LINEAR);
-            
-            
-            barrier.subresourceRange.baseMipLevel = 0;
-            barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-            barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-            barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-            vkCmdPipelineBarrier(commandBuffer,
-                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
-                0, NULL,
-                0, NULL,
-                1, &barrier);
-
-            
-            barrier2.subresourceRange.baseMipLevel = 0;
-            barrier2.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-            barrier2.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            barrier2.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-            barrier2.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+   Rect level2r;
+   
+//         level2r.x = 700;
+//         level2r.y = 350;
+//         level2r.w = 235;
+//         level2r.h = 66;
+   
+   Rect quitr;
+ /*       
+        quitr.x = 400;
+        quitr.y = 500;
+        quitr.w = 164;
+        quitr.h = 66;*/
+   
+   Rect selectr;
+   /*
+        selectr.x = 700;
+        selectr.y = 500;
+        selectr.w = 238;
+        selectr.h = 43;*/
+   
+   if (keys[SDL_SCANCODE_ESCAPE]){
+//       gf3d_swapchain_blit_to(commandBuffer,0,111,0,61,700, 700+111, 500,500+61,no);
+//         gf3d_swapchain_blit_to(commandBuffer,0,138,0,71,400, 400+138, 500,500+71,yes);
+//         yesr.x = 400;
+//         yesr.y = 500;
+//         yesr.w = 138;
+//         yesr.h = 71;
+//         nor.x = 700;
+//         nor.y = 500;
+//         nor.w = 111;
+//         nor.h = 61;
+       gf3d_swapchain_blit_to(commandBuffer,0,238,0,43,700, 700+138, 500,500+43,select);
+        gf3d_swapchain_blit_to(commandBuffer,0,164,0,66,400, 400+164, 500,500+66,quit);
         
-            vkCmdPipelineBarrier(commandBuffer,
-                VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
-                0, NULL,
-                0, NULL,
-                1, &barrier2);
+        selectr.x = 700;
+        selectr.y = 500;
+        selectr.w = 238;
+        selectr.h = 43;
+        
+         quitr.x = 400;
+        quitr.y = 500;
+        quitr.w = 164;
+        quitr.h = 66;
+        
+        if(mousex+32 > 1200 || mousey+32 > 700){
+        gf3d_swapchain_blit_to(commandBuffer,0,32,0,32,mousex, mousex, mousey,mousey,pointer);
+        }
+        else{
+            gf3d_swapchain_blit_to(commandBuffer,0,32,0,32,mousex,32+mousex, mousey,32+mousey,pointer);
+        }
+       
+   }
+   
+   if(state < 2 && !keys[SDL_SCANCODE_ESCAPE]){ 
+   
+       gf3d_swapchain_blit_to(commandBuffer,0,1200,0,700,0, 1200, 0,700,bg_flat);
+       
+       
+       
+   }
+   if(state == 0 && !keys[SDL_SCANCODE_ESCAPE]){
+   
+       
+       
+        startr.x = 511;
+        startr.y = 200;
+        startr.w = 178;
+        startr.h = 64;   
+       
+        gf3d_swapchain_blit_to(commandBuffer,0,178,0,64,511, 511+178, 200,200+64,start);
+        
+    
+       
+   }
+   if(state == 1 && !keys[SDL_SCANCODE_ESCAPE]){
+        level1r.x = 300;
+            level1r.y = 350;
+            level1r.w = 212;
+            level1r.h = 65;
             
-            //if (mipWidth > 1) mipWidth /= 2;
-            //if (mipHeight > 1) mipHeight /= 2;
-        //}
+            gf3d_swapchain_blit_to(commandBuffer,0,212,0,65,300, 300+212, 350,350+65,level1);
+            
+            level2r.x = 700;
+            level2r.y = 350;
+            level2r.w = 235;
+            level2r.h = 66;
+                
+            gf3d_swapchain_blit_to(commandBuffer,0,235,0,66,700, 700+235, 350,350+66,level2);
+        
+    }
+   if(state < 2 && !keys[SDL_SCANCODE_ESCAPE]){ 
+   if(mousex+32 > 1200 || mousey+32 > 700){
+        gf3d_swapchain_blit_to(commandBuffer,0,32,0,32,mousex, mousex, mousey,mousey,pointer);
+        }
+        else{
+            gf3d_swapchain_blit_to(commandBuffer,0,32,0,32,mousex,32+mousex, mousey,32+mousey,pointer);
+        }
+   }
+        
+   if(SDL_PollEvent( &event )){
+       if (keys[SDL_SCANCODE_ESCAPE]){
+        
+           
+        if(gf3d_point_in_rect(mousepoint,quitr) && event.type == SDL_MOUSEBUTTONDOWN){
+            //monster_spawn_at_player();
+            state = 5;
+            slog("YES button");
+        }
+        if(gf3d_point_in_rect(mousepoint,selectr) && event.type == SDL_MOUSEBUTTONDOWN){
+            //monster_spawn_at_player();
+            state = 0;
+            entity_clear_all_but_player();
+            
+            slog("NO button");
+        }
+    }
+       
+        if(gf3d_point_in_rect(mousepoint,button) && event.type == SDL_MOUSEBUTTONDOWN && state >= 2){
+            monster_spawn_at_player();
+            slog("point in rect");
+        }
+        if(gf3d_point_in_rect(mousepoint,startr) && event.type == SDL_MOUSEBUTTONDOWN){
+             
+            state = 1;
+            slog("Start button");
+         }
 
-        //barrier.subresourceRange.baseMipLevel = mipLevels - 1;
-        barrier.subresourceRange.baseMipLevel = 0;
-        barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-        vkCmdPipelineBarrier(commandBuffer,
-            VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
-            0, NULL,
-            0, NULL,
-            1, &barrier);
-    */
+        if(gf3d_point_in_rect(mousepoint,level1r) && event.type == SDL_MOUSEBUTTONDOWN){
+            //gf3d_swapchain_blit_to(commandBuffer,0,212,0,65,300, 300+212, 350,350+65,level1);
+            player_spawn(vector3d(1,1,1));
+            pickup_spawn(vector3d(10,0,0));
+            monster_spawn(vector3d(-40,-40,0));
+            
+            state = 2;
+            slog("LEVEL 1 button");
+        }
+        if(gf3d_point_in_rect(mousepoint,level2r) && event.type == SDL_MOUSEBUTTONDOWN){
+            //gf3d_swapchain_blit_to(commandBuffer,0,235,0,66,700, 700+235, 350,350+66,level2);
+            state = 2;
+            slog("LEVEL 2 button");
+        }
+        
+    }
     
-    //gf3d_swapchain_transition_image_layout(dstImage,VK_FORMAT_B8G8R8A8_UNORM,VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+//     
     
-    //gf3d_swapchain_transition_image_layout(dstImage,VK_FORMAT_B8G8R8A8_UNORM,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,VK_IMAGE_LAYOUT_UNDEFINED);
+   
+   
+    //gf3d_swapchain_blit_to(VkCommandBuffer commandBuffer,Uint32 srcWidthStart,Uint32 srcWidthEnd,Uint32 srcHeightStart,,Uint32 srcHeightEnd,Uint32 dstWidthStart,,Uint32 dstWidthEnd,Uint32 dstHeightStart,Uint32 dstHeightEnd,Texture *texture)
+    
     
     
     gf3d_command_configure_render_pass(
@@ -401,10 +450,50 @@ VkCommandBuffer gf3d_command_rendering_begin(Uint32 index)
     return commandBuffer;
 }
 
-void gf3d_command_rendering_end(VkCommandBuffer commandBuffer)
+int gf3d_command_rendering_end(VkCommandBuffer commandBuffer)
 {
     gf3d_command_configure_render_pass_end(commandBuffer);
+    
+    //Texture *texture = gf3d_texture_load("images/dino.png");
+    
+    //Entity *player;
+   // player = player_get();
+    
+     //gf3d_swapchain_blit_to(commandBuffer,0,1024,0,1024,0, player->health, 0,player->health,texture);
+    
+    
+//     if (keys[SDL_SCANCODE_ESCAPE] && state < 2){
+//         
+//         gf3d_swapchain_blit_to(commandBuffer,0,111,0,61,700, 700+111, 500,500+61,no);
+//         gf3d_swapchain_blit_to(commandBuffer,0,138,0,71,400, 400+138, 500,500+71,yes);
+//         yesr.x = 400;
+//         yesr.y = 500;
+//         yesr.w = 138;
+//         yesr.h = 71;
+//         nor.x = 700;
+//         nor.y = 500;
+//         nor.w = 111;
+//         nor.h = 61;
+//         
+//         if(gf3d_point_in_rect(mousepoint,yesr) && event.type == SDL_MOUSEBUTTONDOWN){
+//             //monster_spawn_at_player();
+//             done = 1;
+//             slog("YES button");
+//         }
+//         if(gf3d_point_in_rect(mousepoint,nor) && event.type == SDL_MOUSEBUTTONDOWN){
+//             //monster_spawn_at_player();
+//             
+//             slog("NO button");
+//         }
+//     }
+//     
+    
+    
+     
+     
     gf3d_command_end_single_time(gf3d_vgraphics_get_graphics_command_pool(), commandBuffer);
+    
+    return state;
 }
 
 void gf3d_command_configure_render_pass(VkCommandBuffer commandBuffer, VkRenderPass renderPass,VkFramebuffer framebuffer,VkPipeline graphicsPipeline,VkPipelineLayout pipelineLayout)

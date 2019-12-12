@@ -145,7 +145,7 @@ Uint8 gf3d_rect_overlap(Rect a,Rect b);
  * @param normal if provided, this will be populated with the normal for the point of impact
  * @return true if there is any overlap, false otherwise
  */
-Uint8 gf3d_rect_overlap_poc(Rect a,Rect b,Vector3D *poc, Vector3D *normal);
+Uint8 gf3d_rect_overlap_poc(Rect a,Rect b,Vector3D *poc, Vector3D *normal,int flip);
 
 /**
  * @brief draw a rect to the screen
@@ -226,7 +226,7 @@ Uint8 gf3d_shape_overlap(Shape a, Shape b);
  * @param poc if set the point of contact is written here
  * @param normal if provided, this will be populated with the normal for the point of impact
  */
-Uint8 gf3d_shape_overlap_poc(Shape a, Shape b, Vector3D *poc, Vector3D *normal);
+Uint8 gf3d_shape_overlap_poc(Shape a, Shape b, Vector3D *poc, Vector3D *normal,int flip);
 
 /**
  * @brief convert a gf3d rect to an SDL rect

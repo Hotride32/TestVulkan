@@ -18,6 +18,15 @@ void monster_think_patroling(Entity *self);
 
 Entity *monster_new(Vector3D position);
 
+Entity *monster_spawn_at_player()
+{
+    //,SJson *args
+    Entity *player = player_get();
+    
+    return monster_new(player->position);
+    //,"actors/space_bug.actor"
+}
+
 Entity *monster_spawn(Vector3D position)
 {
     //,SJson *args
@@ -73,14 +82,14 @@ Entity *monster_new(Vector3D position)
     //vector3d_set(self->facing,-1,0);
     
     
-    self->walk = gf3d_model_load_animated("dino_walk",1,24);
-    self->idle = gf3d_model_load_animated("dino_attack",1,77);
+    self->walk = gf3d_model_load_animated("geese_walk",1,41);
+    self->idle = gf3d_model_load_animated("geese_attack",1,60);
     self->model = self->walk;
     
     self->stat = 1;
     
     
-    self->maxFrame = 23;
+    self->maxFrame = 40;
     
     self->frameCount =1;
     
@@ -144,9 +153,9 @@ void monster_think_attacking(Entity *self)
     //if (gf3d_actor_get_frames_remaining(&self->actor) <= 0)
     //{
         //slog("back to search");
-       if(self->maxFrame == 23){
+       if(self->maxFrame == 40){
             self->model = self->idle;
-            self->maxFrame = 76;
+            self->maxFrame = 59;
             self->frameCount = 1;
        }
             //self->frameCount = 1;
@@ -162,7 +171,7 @@ void monster_think_attacking(Entity *self)
     
             
             
-       if(self->frameCount >= 75){
+       if(self->frameCount >= 58){
            //slog("back to search");
         
         
@@ -179,6 +188,9 @@ void monster_attack(Entity *self)
     //slog("attacking player");
     //gf3d_actor_set_action(&self->actor,"attack1");
     //self->cooldown = gf3d_actor_get_frames_remaining(&self->actor);
+    
+    gf3d_entity_attack(self, 1, 1, 0);
+    
     self->think = monster_think_attacking;
     //gf3d_sound_play(self->sound[1],0,1,-1,-1);
 }
@@ -267,9 +279,9 @@ void monster_think_hunting(Entity *self)
     
     //vector3d_normalize(&self->position);
     float keep = 0.0;
-    if(self->maxFrame == 76){
+    if(self->maxFrame == 59){
         self->model = self->walk;
-        self->maxFrame = 23;
+        self->maxFrame = 40;
         self->frameCount = 1;
     }
     

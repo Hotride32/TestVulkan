@@ -60,7 +60,7 @@ Collision *gf3d_collision_space_static_shape_clip(Shape a, Shape *s)
 {
     Collision *collision;
     Vector3D poc,normal;
-    if (!gf3d_shape_overlap_poc(a, *s, &poc, &normal))
+    if (!gf3d_shape_overlap_poc(a, *s, &poc, &normal,1))
     {
         return NULL;
     }
@@ -83,7 +83,7 @@ Collision *gf3d_collision_space_dynamic_body_clip(Shape a, DynamicBody *d)
     Vector3D poc,normal;
     if (!d)return NULL;
     s = gf3d_dynamic_body_to_shape(d);
-    if (!gf3d_shape_overlap_poc(a, s, &poc, &normal))
+    if (!gf3d_shape_overlap_poc(a, s, &poc, &normal,1))
     {
         return NULL;
     }

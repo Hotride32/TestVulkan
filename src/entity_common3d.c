@@ -27,7 +27,7 @@ void entity_damage(Entity *target,Entity *killer,int damage,float kick)
     if (target->damage != NULL)
     {
         target->damage(target,damage,killer);
-        entity_push(killer,target,kick);
+        //entity_push(killer,target,kick);
     }
 }
 
@@ -179,6 +179,7 @@ void entity_world_snap(Entity *self)
         self->position.x += 0.1;
     }    
 }
+*/
 
 void entity_clear_all_but_player()
 {
@@ -190,14 +191,15 @@ void entity_clear_all_but_player()
     }
 }
 
+/*
 Entity *entity_get_from_body(Body *body)
 {
     if (!body) return NULL;
     if (!gf3d_entity_validate_entity_pointer(body->data))return NULL;
     return (Entity*)body->data;
 }
-
 */
+
 
 Entity *entity_get_touching_player(Entity *self)
 {

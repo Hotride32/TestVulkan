@@ -1345,8 +1345,9 @@ int player_damage(Entity *self,int amount, Entity *source)
     //play pain sound, set pain state
     if (self->health <= 0)
     {
-        self->health = 1;
-        gf3d_entity_free(self);
+        self->health = 0;
+        entity_clear_all_but_player();
+        //gf3d_entity_free(self);
         
         //self->die(self);
     }

@@ -18,20 +18,21 @@ void monster_think_patroling(Entity *self);
 
 Entity *monster_new(Vector3D position);
 
-Entity *monster_spawn_at_player()
-{
-    //,SJson *args
-    Entity *player = player_get();
-    
-    return monster_new(player->position);
-    //,"actors/space_bug.actor"
-}
-
 Entity *monster_spawn(Vector3D position)
 {
     //,SJson *args
     return monster_new(position);
     //,"actors/space_bug.actor"
+}
+
+Entity *monster_spawn_at_player()
+{
+    //,SJson *args
+    Entity *player = player_get();
+    slog("{ name : monster_start, position :[%f,%f,%f]} ", player->position.x, player->position.y, player->position.z);
+    
+    return monster_spawn(player->position);
+    
 }
 
 
@@ -44,13 +45,13 @@ Entity *monster_new(Vector3D position)
     self = gf3d_entity_new();
     if (!self)return NULL;
     
-    gfc_line_cpy(self->name,"monster");
+    gfc_line_cpy(self->name,"monster_start");
     //self->parent = NULL;
     
     self->shape = gf3d_shape_rect(-5, -5,-5 , 5, 5, 5);
     gf3d_body_set(
         &self->body,
-        "monster",
+        "monster_start",
         1,//world layer
         8,
         //MONSTER_LAYER
@@ -122,7 +123,7 @@ Entity *monster_new(Vector3D position)
     self->die = monster_die;
     //self->free = gf3d_entity_free(self);
 
-    self->health = self->healthmax = 20;
+    self->health = self->healthmax = 5000;
     //level_add_entity(self);
     return self;
 }
@@ -198,8 +199,64 @@ void monster_attack(Entity *self)
 void monster_think_patroling(Entity *self)
 {
     //slog("_patroling");
+    Vector3D position;
+    Entity *player = player_get();
     
-    Vector3D position = vector3d(self->position.x + 0.005, self->position.y, self->position.z);
+    if (player->position.x > self->position.x)
+    {
+        monster_turn(self,1);
+    
+        //position = vector3d(self->position.x + 0.005, self->position.y, self->position.z);
+        if (player->position.y > self->position.y)
+    {
+       // monster_turn(self,1);
+    
+        position = vector3d(self->position.x + 0.005, self->position.y + 0.005, self->position.z);
+    }
+    if (player->position.y < self->position.y)
+    {
+        //monster_turn(self,-1);
+    
+    position = vector3d(self->position.x + 0.005, self->position.y - 0.005, self->position.z);
+    }
+        
+        
+        
+    }
+    if (player->position.x < self->position.x)
+    {
+        monster_turn(self,-1);
+    
+        //position = vector3d(self->position.x - 0.005, self->position.y, self->position.z);
+    
+        if (player->position.y > self->position.y)
+    {
+       // monster_turn(self,1);
+    
+        position = vector3d(self->position.x- 0.005, self->position.y + 0.005, self->position.z);
+        }
+        if (player->position.y < self->position.y)
+        {
+        //monster_turn(self,-1);
+    
+        position = vector3d(self->position.x- 0.005, self->position.y - 0.005, self->position.z);
+        }
+    
+    }
+    
+//     if (player->position.y > self->position.y)
+//     {
+//        // monster_turn(self,1);
+//     
+//         position = vector3d(self->position.x, self->position.y + 0.005, self->position.z);
+//     }
+//     if (player->position.y < self->position.y)
+//     {
+//         //monster_turn(self,-1);
+//     
+//     position = vector3d(self->position.x, self->position.y - 0.005, self->position.z);
+//     }
+    
     
     vector3d_copy(self->position,position);
     vector3d_copy(self->body.position,position);
@@ -293,7 +350,7 @@ void monster_think_hunting(Entity *self)
         Vector3D position = {0};
         
     float move = vector3d_magnitude_between(self->position,player->position);
-        
+    /*    
     if (player->position.x > self->position.x)
     {
         monster_turn(self,1);
@@ -311,8 +368,49 @@ void monster_think_hunting(Entity *self)
         
         //keep = 0;
 //         position.x -= 0.05;
-    }
+    }*/
     
+    if (player->position.x > self->position.x)
+    {
+        monster_turn(self,1);
+    
+        //position = vector3d(self->position.x + 0.005, self->position.y, self->position.z);
+        if (player->position.y > self->position.y)
+    {
+       // monster_turn(self,1);
+    
+        position = vector3d(self->position.x + 0.005, self->position.y + 0.005, self->position.z);
+    }
+    if (player->position.y < self->position.y)
+    {
+        //monster_turn(self,-1);
+    
+    position = vector3d(self->position.x + 0.005, self->position.y - 0.005, self->position.z);
+    }
+        
+        
+        
+    }
+    if (player->position.x < self->position.x)
+    {
+        monster_turn(self,-1);
+    
+        //position = vector3d(self->position.x - 0.005, self->position.y, self->position.z);
+    
+        if (player->position.y > self->position.y)
+    {
+       // monster_turn(self,1);
+    
+        position = vector3d(self->position.x- 0.005, self->position.y + 0.005, self->position.z);
+        }
+        if (player->position.y < self->position.y)
+        {
+        //monster_turn(self,-1);
+    
+        position = vector3d(self->position.x- 0.005, self->position.y - 0.005, self->position.z);
+        }
+    
+    }
     
     
   /*  if(move > 10){
@@ -335,7 +433,7 @@ void monster_think_hunting(Entity *self)
     //monster loses sight of player
 //     if (vector3d_magnitude_compare(vector3d(self->position.x - player->position.x,self->position.y - player->position.y, self->position.z - player->position.z),50) > 0)
 //     {
-    if(move >50){
+    if(move >20){
         //slog("lost the player");
         self->think = monster_think_patroling;// idle think //_patroling
         //gf3d_actor_set_action(&self->actor,"walk");
@@ -475,6 +573,11 @@ void monster_update(Entity *self)
         self->health = 0;
         //self->think = monster_die;
         
+        int item = rand() % 5;
+        
+        if(item == 4){
+         pickup_spawn(self->position);   
+        }
         //gf3d_model_free(self->walk);
         //gf3d_model_free(self->idle);
         gf3d_entity_free(self);
@@ -566,7 +669,7 @@ int monster_player_sight_check(Entity *self)
     
     
 //     if (vector3d_magnitude_compare(vector3d (self->position.x - player->position.x,self->position.y - player->position.y, self->position.z - player->position.z),100) < 0)
-    if(move < 50)
+    if(move < 20)
     {
         //gf3d_sound_play(self->sound[0],0,1,-1,-1);
         return 1;

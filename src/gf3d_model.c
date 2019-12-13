@@ -102,9 +102,9 @@ Model * gf3d_model_load_animated(char * filename,Uint32 startFrame, Uint32 endFr
     for (i = 0; i < count; i++) //changed i =0 to 1
     {
         snprintf(assetname,GFCLINELEN,"models/%s_%06i.obj",filename,startFrame + i);
-        slog(assetname);
+        //slog(assetname);
         model->mesh[i] = gf3d_mesh_load(assetname);
-        slog("name of mesh: %i", model->mesh[i]);
+        //slog("name of mesh: %i", model->mesh[i]);
     }
 
     snprintf(assetname,GFCLINELEN,"images/%s.png",filename);

@@ -1,0 +1,9 @@
+{
+"world":{
+    "spawnList" : [
+        {"name":"player_start",
+         "position":[1,1,1]}
+        
+    ]
+}
+}

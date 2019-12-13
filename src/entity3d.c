@@ -4,6 +4,7 @@
 
 #include "simple_logger.h"
 #include "entity3d.h"
+#include "simple_json.h"
 #include "entity_common3d.h"
 
 typedef struct
@@ -174,7 +175,7 @@ void gf3d_entity_attack(Entity *attacker,int damage, Uint32 target,int flip)
         if((vector3d_magnitude_between(attacker->position,self->position) < 10) && gf3d_entity_manager.entity_list[i].body.cliplayer == target 
             
          ){
-             slog("hit");
+             //slog("hit");
              gf3d_entity_damage(&gf3d_entity_manager.entity_list[i],damage);
              
          }
@@ -296,6 +297,173 @@ void gf3d_entity_post_sync_all()
         gf3d_entity_post_sync_body(&gf3d_entity_manager.entity_list[i]);
     }
 }
+
+int sj_value_as_vector3d(SJson *json,Vector3D *output)
+{
+    const char *text = NULL;
+    float numbers[4];
+    int i,count;
+    SJson *value;
+    if (!json)return 0;
+    if (sj_is_array(json))
+    {
+        count = sj_array_get_count(json);
+        if (count < 3)return 0;
+        if (count > 3)count = 3;
+        for (i = 0; i < count;i++)
+        {
+            value = sj_array_get_nth(json,i);
+            sj_get_float_value(value,&numbers[i]);
+        }
+        if (output)
+        {
+            output->x = numbers[0];
+            output->y = numbers[1];
+            output->z = numbers[2];
+        }
+        return 1;
+    }
+    if (sj_is_string(json))
+    {
+        text = sj_get_string_value(json);
+        if(sscanf(text,"%f,%f,%f",&numbers[0],&numbers[1],&numbers[2]) != 3)
+        {
+            return 0;
+        }
+        if (output)
+        {
+            output->x = numbers[0];
+            output->y = numbers[1];
+            output->z = numbers[2];
+        }
+        return 1;
+    }
+    return 0;
+}
+
+
+
+void level_spawn_entities(SJson *spawnList)
+{
+    int i = 0, count = 0;
+    SJson *item;
+    Vector3D position;
+    int id = 0;
+    count  = sj_array_get_count(spawnList);
+    for (i = 0; i < count; i++)
+    {
+        item = sj_array_get_nth(spawnList,i);
+        if (!item)continue;
+        sj_value_as_vector3d(sj_object_get_value(item,"position"),&position);
+        if (!sj_get_integer_value(sj_object_get_value(item,"name"),&id))
+        {
+            id = 0;
+        }
+        spawn_entity(sj_get_string_value(sj_object_get_value(item,"name")),position,id,sj_object_get_value(item,"args"));
+    }
+}
+
+void *level_info_load(char *filename)
+{
+    //LevelInfo *linfo = NULL;
+    SJson *json,*world;
+    SJson      *spawnList;
+    if (!filename)return NULL;
+    json = sj_load(filename);
+    if (!json)
+    {
+        slog("failed to load level file %s",filename);
+        return NULL;
+    }
+//     linfo = level_info_new();
+//     if (!linfo)
+//     {
+//         return NULL;
+//     }
+    world = sj_object_get_value(json,"world");
+    if (!world)
+    {
+        slog("missing world object in level file %s",filename);
+        sj_free(json);
+        //level_info_free(linfo);
+        return NULL;
+    }
+   
+    spawnList = sj_copy(sj_object_get_value(world,"spawnList"));
+    
+    
+    sj_free(json);
+    
+    level_spawn_entities(spawnList);
+    
+    slog("loaded level info for %s",filename);
+    return NULL;
+}
+/*
+void level_save_entities(SJson *spawnList, Entity* self)
+{
+    int i = 0, count = 0;
+    SJson *item;
+    Vector3D position;
+    int id = 0;
+    count  = sj_array_get_count(spawnList);
+    
+    
+    
+     for (i = 0; i < count; i++)
+     {
+         item = sj_array_get_nth(spawnList,i);
+         if (!item)continue;
+         sj_value_as_vector3d(sj_object_get_value(item,"position"),&position);
+         if (!sj_get_integer_value(sj_object_get_value(item,"name"),&id))
+         {
+             id = 0;
+         }
+         
+         //spawn_entity(sj_get_string_value(sj_object_get_value(item,"name")),position,id,sj_object_get_value(item,"args"));
+//     }
+}
+
+void *level_info_save(char *filename, Entity* self)
+{
+    //LevelInfo *linfo = NULL;
+    SJson *json,*world;
+    SJson      *spawnList;
+    if (!filename)return NULL;
+    json = sj_load(filename);
+    if (!json)
+    {
+        slog("failed to load level file %s",filename);
+        return NULL;
+    }
+//     linfo = level_info_new();
+//     if (!linfo)
+//     {
+//         return NULL;
+//     }
+    world = sj_object_get_value(json,"world");
+    if (!world)
+    {
+        slog("missing world object in level file %s",filename);
+        sj_free(json);
+        //level_info_free(linfo);
+        return NULL;
+    }
+   
+    spawnList = sj_copy(sj_object_get_value(world,"spawnList"));
+    
+   level_save_entities(spawnList); 
+    
+    
+   
+    sj_free(json);
+    
+   
+    
+    slog("saved level info for %s",filename);
+    return NULL;
+}*/
+
 
 
 

@@ -187,8 +187,8 @@ VkCommandBuffer gf3d_command_rendering_begin(Uint32 index, int *done)
     Rect button;
     Vector3D mousepoint;
     
-    //Entity *player;
-    //player = player_get();
+    Entity *player;
+    player = player_get();
     
     Texture *spawnm = gf3d_texture_load("images/spawnm.png");
     Texture *pointer = gf3d_texture_load("images/pointer.png");
@@ -230,6 +230,8 @@ VkCommandBuffer gf3d_command_rendering_begin(Uint32 index, int *done)
     
     if(keys[SDL_SCANCODE_M]){
     
+        //state = 4;
+        
         button.x = 700;
         button.y = 0;
         button.w = 1200;
@@ -250,6 +252,13 @@ VkCommandBuffer gf3d_command_rendering_begin(Uint32 index, int *done)
     
    gf3d_swapchain_blit_health(commandBuffer,0,50,0,50,0, 500, 0,200,test);
      
+//    if(player->health == 0){
+//        
+//        
+//    }
+   
+   
+   
   // gf3d_swapchain_blit_to(commandBuffer,0,1200,0,700,0, 1200, 0,700,bg_flat);
 //    gf3d_swapchain_blit_to(commandBuffer,0,111,0,61,700, 700+111, 500,500+61,no);
 //    gf3d_swapchain_blit_to(commandBuffer,0,138,0,71,400, 400+138, 500,500+71,yes);
@@ -307,18 +316,37 @@ VkCommandBuffer gf3d_command_rendering_begin(Uint32 index, int *done)
         selectr.y = 500;
         selectr.w = 238;
         selectr.h = 43;*/
-   
-   if (keys[SDL_SCANCODE_ESCAPE]){
-//       gf3d_swapchain_blit_to(commandBuffer,0,111,0,61,700, 700+111, 500,500+61,no);
-//         gf3d_swapchain_blit_to(commandBuffer,0,138,0,71,400, 400+138, 500,500+71,yes);
-//         yesr.x = 400;
-//         yesr.y = 500;
-//         yesr.w = 138;
-//         yesr.h = 71;
-//         nor.x = 700;
-//         nor.y = 500;
-//         nor.w = 111;
-//         nor.h = 61;
+ /*  
+   if (player != NULL)
+        {
+        if(player->health == 0){
+       
+        gf3d_swapchain_blit_to(commandBuffer,0,238,0,43,700, 700+138, 500,500+43,select);
+        gf3d_swapchain_blit_to(commandBuffer,0,164,0,66,400, 400+164, 500,500+66,quit);
+        
+        selectr.x = 700;
+        selectr.y = 500;
+        selectr.w = 238;
+        selectr.h = 43;
+        
+         quitr.x = 400;
+        quitr.y = 500;
+        quitr.w = 164;
+        quitr.h = 66;
+        
+        if(mousex+32 > 1200 || mousey+32 > 700){
+        gf3d_swapchain_blit_to(commandBuffer,0,32,0,32,mousex, mousex, mousey,mousey,pointer);
+        }
+        else{
+            gf3d_swapchain_blit_to(commandBuffer,0,32,0,32,mousex,32+mousex, mousey,32+mousey,pointer);
+        }
+       
+            }
+        }
+   */
+   if (keys[SDL_SCANCODE_ESCAPE] || (player != NULL && player->health == 0)){
+
+       
        gf3d_swapchain_blit_to(commandBuffer,0,238,0,43,700, 700+138, 500,500+43,select);
         gf3d_swapchain_blit_to(commandBuffer,0,164,0,66,400, 400+164, 500,500+66,quit);
         
@@ -388,24 +416,25 @@ VkCommandBuffer gf3d_command_rendering_begin(Uint32 index, int *done)
    }
         
    if(SDL_PollEvent( &event )){
-       if (keys[SDL_SCANCODE_ESCAPE]){
+       if (keys[SDL_SCANCODE_ESCAPE] || (player != NULL && player->health == 0)){
         
            
         if(gf3d_point_in_rect(mousepoint,quitr) && event.type == SDL_MOUSEBUTTONDOWN){
             //monster_spawn_at_player();
             state = 5;
-            slog("YES button");
+            slog("quit button");
         }
         if(gf3d_point_in_rect(mousepoint,selectr) && event.type == SDL_MOUSEBUTTONDOWN){
             //monster_spawn_at_player();
             state = 0;
             entity_clear_all_but_player();
             
-            slog("NO button");
+            slog("select button");
         }
     }
        
         if(gf3d_point_in_rect(mousepoint,button) && event.type == SDL_MOUSEBUTTONDOWN && state >= 2){
+            
             monster_spawn_at_player();
             slog("point in rect");
         }
@@ -417,15 +446,28 @@ VkCommandBuffer gf3d_command_rendering_begin(Uint32 index, int *done)
 
         if(gf3d_point_in_rect(mousepoint,level1r) && event.type == SDL_MOUSEBUTTONDOWN){
             //gf3d_swapchain_blit_to(commandBuffer,0,212,0,65,300, 300+212, 350,350+65,level1);
-            player_spawn(vector3d(1,1,1));
-            pickup_spawn(vector3d(10,0,0));
-            monster_spawn(vector3d(-40,-40,0));
+            //player_spawn(vector3d(1,1,1));
+           // pickup_spawn(vector3d(10,0,0));
+           // monster_spawn(vector3d(-40,-40,0));
+            
+            level_info_load("levels/level.json");
+            
+            if(player != NULL){
+            player->health = player->healthmax;
+            }
             
             state = 2;
             slog("LEVEL 1 button");
         }
         if(gf3d_point_in_rect(mousepoint,level2r) && event.type == SDL_MOUSEBUTTONDOWN){
             //gf3d_swapchain_blit_to(commandBuffer,0,235,0,66,700, 700+235, 350,350+66,level2);
+            
+            level_info_load("levels/level2.json");
+            
+            if(player != NULL){
+            player->health = player->healthmax;
+            }
+            
             state = 2;
             slog("LEVEL 2 button");
         }

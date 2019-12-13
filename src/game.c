@@ -11,6 +11,7 @@
 #include "gf3d_camera.h"
 #include "gf3d_texture.h"
 #include "entity3d.h"
+#include "player3d.h"
 
 int main(int argc,char *argv[])
 {
@@ -29,7 +30,7 @@ int main(int argc,char *argv[])
     Matrix4 modelMat;
    // Model *model2 = NULL;
     Matrix4 modelMat2;
-    Entity *player = NULL;
+    //Entity *player = NULL;
     Texture *texture = NULL;
     //gf3d_texture_load("images/dino.png");
     VkImage dstimage = NULL;
@@ -170,21 +171,52 @@ int main(int argc,char *argv[])
     gf3d_command_end_single_time(gf3d_vgraphics_get_graphics_command_pool(), commandBuffer);
     */
     
+    Entity *player;
+    
+    
     while(!done)
     {
         SDL_PumpEvents();   // update SDL's internal event structures
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
         //update game things here
-        if(!keys[SDL_SCANCODE_ESCAPE]){
+        
+        player = player_get();
+        if (player != NULL && player->health > 0)
+        {
+        if(!keys[SDL_SCANCODE_ESCAPE] && !keys[SDL_SCANCODE_M]){
         gf3d_entity_update_all();
+        }
+        }
+        
+        if (player != NULL && player->health > 0)
+        {
+            
+        //gf2d_sound_play(self->sound[0],0,1,-1,-1);
+        //self->dead = 1;  
+            if(keys[SDL_SCANCODE_M]){
+            gf3d_entity_update(player);
+            }
+            
+           
+         
         }
         gf3d_entity_pre_sync_all();
         
         gf3d_entity_post_sync_all();
-        if(!keys[SDL_SCANCODE_ESCAPE]){
+        if (player != NULL && player->health > 0)
+        {
+        if(!keys[SDL_SCANCODE_ESCAPE] && !keys[SDL_SCANCODE_M]){
         gf3d_entity_think_all();
         }
+        }
+        if (player != NULL && player->health > 0)
+        {
         
+            if(keys[SDL_SCANCODE_M]){
+            player->think(player);
+            }
+        
+        }
         bufferFrame = gf3d_vgraphics_render_begin();
         gf3d_pipeline_reset_frame(gf3d_vgraphics_get_graphics_pipeline(),bufferFrame);
         

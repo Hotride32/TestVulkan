@@ -11,8 +11,6 @@
          "position":[40,-40,0]},
         {"name":"monster_start",
          "position":[-40,40,0]},
-         {"name":"pickup_start",
-         "position":[10,0,0]},
           {"name" : "monster_start",
           "position" :[-16.780186,29.603035,1.000000]}
          

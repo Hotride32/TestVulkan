@@ -572,6 +572,7 @@ void monster_update(Entity *self)
     {
         self->health = 0;
         //self->think = monster_die;
+        //gf3d_command_moncount_minus();
         
         int item = rand() % 5;
         

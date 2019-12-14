@@ -25,7 +25,7 @@ typedef struct
 static CommandManager gf3d_commands = {0};
 
 static int state = 0;
-
+static int moncount = 0;
 
 void gf3d_command_pool_close();
 void gf3d_command_free(Command *com);
@@ -74,6 +74,11 @@ Command *gf3d_command_pool_new()
     }
     slog("failed to get a new command pool, list full");
     return NULL;
+}
+
+void gf3d_command_moncount_minus(){
+    
+    moncount -= 1;
 }
 
 void gf3d_command_free(Command *com)
@@ -201,6 +206,9 @@ VkCommandBuffer gf3d_command_rendering_begin(Uint32 index, int *done)
     Texture *bg_flat = gf3d_texture_load("images/bg_flat.png");
     Texture *quit = gf3d_texture_load("images/quit.png");
     Texture *select = gf3d_texture_load("images/select.png");
+    Texture *empty = gf3d_texture_load("images/empty.png");
+    Texture *dead = gf3d_texture_load("images/dead.png");
+    Texture *complete = gf3d_texture_load("images/complete.png");
     
     //Texture *text = gf3d_texture_load_text("images/dino_attack.png");
     
@@ -249,24 +257,9 @@ VkCommandBuffer gf3d_command_rendering_begin(Uint32 index, int *done)
     }
     
     
-    
    gf3d_swapchain_blit_health(commandBuffer,0,50,0,50,0, 500, 0,200,test);
      
-//    if(player->health == 0){
-//        
-//        
-//    }
-   
-   
-   
-  // gf3d_swapchain_blit_to(commandBuffer,0,1200,0,700,0, 1200, 0,700,bg_flat);
-//    gf3d_swapchain_blit_to(commandBuffer,0,111,0,61,700, 700+111, 500,500+61,no);
-//    gf3d_swapchain_blit_to(commandBuffer,0,138,0,71,400, 400+138, 500,500+71,yes);
-   //gf3d_swapchain_blit_to(commandBuffer,0,178,0,64,511, 511+178, 200,200+64,start);
-   //gf3d_swapchain_blit_to(commandBuffer,0,212,0,65,300, 300+212, 350,350+65,level1);
-  // gf3d_swapchain_blit_to(commandBuffer,0,235,0,66,700, 700+235, 350,350+66,level2);
-   
-   
+ 
    
    Rect startr;
    /*
@@ -316,13 +309,30 @@ VkCommandBuffer gf3d_command_rendering_begin(Uint32 index, int *done)
         selectr.y = 500;
         selectr.w = 238;
         selectr.h = 43;*/
- /*  
-   if (player != NULL)
-        {
-        if(player->health == 0){
-       
-        gf3d_swapchain_blit_to(commandBuffer,0,238,0,43,700, 700+138, 500,500+43,select);
+   
+   Rect emptyr;
+   /*
+        emptyr.x = 700;
+        emptyr.y = 500;
+        emptyr.w = 221;
+        emptyr.h = 43;*/
+   
+   Rect deadr;
+   /*
+        deadr.x = 700;
+        deadr.y = 500;
+        deadr.w = 119;
+        deadr.h = 43;*/
+   
+   
+   if(moncount == 1){
+       gf3d_swapchain_blit_to(commandBuffer,0,238,0,43,700, 700+138, 500,500+43,select);
         gf3d_swapchain_blit_to(commandBuffer,0,164,0,66,400, 400+164, 500,500+66,quit);
+        
+        if(player != NULL && player->health == 0){
+            gf3d_swapchain_blit_to(commandBuffer,0,119,0,43,550, 550+288, 200,200+42,complete);
+        }
+        
         
         selectr.x = 700;
         selectr.y = 500;
@@ -340,15 +350,18 @@ VkCommandBuffer gf3d_command_rendering_begin(Uint32 index, int *done)
         else{
             gf3d_swapchain_blit_to(commandBuffer,0,32,0,32,mousex,32+mousex, mousey,32+mousey,pointer);
         }
-       
-            }
-        }
-   */
+    }
+   
    if (keys[SDL_SCANCODE_ESCAPE] || (player != NULL && player->health == 0)){
 
        
        gf3d_swapchain_blit_to(commandBuffer,0,238,0,43,700, 700+138, 500,500+43,select);
         gf3d_swapchain_blit_to(commandBuffer,0,164,0,66,400, 400+164, 500,500+66,quit);
+        
+        if(player != NULL && player->health == 0){
+            gf3d_swapchain_blit_to(commandBuffer,0,119,0,43,550, 550+119, 200,200+43,dead);
+        }
+        
         
         selectr.x = 700;
         selectr.y = 500;
@@ -404,6 +417,14 @@ VkCommandBuffer gf3d_command_rendering_begin(Uint32 index, int *done)
             level2r.h = 66;
                 
             gf3d_swapchain_blit_to(commandBuffer,0,235,0,66,700, 700+235, 350,350+66,level2);
+           
+            emptyr.x = 500;
+            emptyr.y = 500;
+            emptyr.w = 221;
+            emptyr.h = 43;
+            
+            gf3d_swapchain_blit_to(commandBuffer,0,221,0,66,500, 500+221, 500,500+66,empty);
+            
         
     }
    if(state < 2 && !keys[SDL_SCANCODE_ESCAPE]){ 
@@ -436,6 +457,7 @@ VkCommandBuffer gf3d_command_rendering_begin(Uint32 index, int *done)
         if(gf3d_point_in_rect(mousepoint,button) && event.type == SDL_MOUSEBUTTONDOWN && state >= 2){
             
             monster_spawn_at_player();
+           // grass_spawn_at_player();
             slog("point in rect");
         }
         if(gf3d_point_in_rect(mousepoint,startr) && event.type == SDL_MOUSEBUTTONDOWN){
@@ -449,9 +471,9 @@ VkCommandBuffer gf3d_command_rendering_begin(Uint32 index, int *done)
             //player_spawn(vector3d(1,1,1));
            // pickup_spawn(vector3d(10,0,0));
            // monster_spawn(vector3d(-40,-40,0));
-            
-            level_info_load("levels/level.json");
-            
+            //moncount = 0;
+            moncount = level_info_load("levels/level.json");
+            //slog("moncount: %f ", moncount);
             if(player != NULL){
             player->health = player->healthmax;
             }
@@ -461,15 +483,27 @@ VkCommandBuffer gf3d_command_rendering_begin(Uint32 index, int *done)
         }
         if(gf3d_point_in_rect(mousepoint,level2r) && event.type == SDL_MOUSEBUTTONDOWN){
             //gf3d_swapchain_blit_to(commandBuffer,0,235,0,66,700, 700+235, 350,350+66,level2);
-            
+            //moncount = 0;
             level_info_load("levels/level2.json");
-            
+            //slog("moncount: %f ", moncount);
             if(player != NULL){
             player->health = player->healthmax;
             }
             
             state = 2;
             slog("LEVEL 2 button");
+        }
+        if(gf3d_point_in_rect(mousepoint,emptyr) && event.type == SDL_MOUSEBUTTONDOWN){
+            //gf3d_swapchain_blit_to(commandBuffer,0,235,0,66,700, 700+235, 350,350+66,level2);
+            //moncount = 0;
+            level_info_load("levels/blank.json");
+            
+            if(player != NULL){
+            player->health = player->healthmax;
+            }
+            
+            state = 2;
+            slog("blank button");
         }
         
     }

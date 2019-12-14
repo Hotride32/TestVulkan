@@ -2,8 +2,21 @@
 "world":{
     "spawnList" : [
         {"name":"player_start",
-         "position":[1,1,1]}
-        
+         "position":[-10,1,1]},
+	{ "name" : "monster_start", "position" :[-28.248081,9.575172,1.000000]},
+	{ "name" : "monster_start", "position" :[-28.248081,-5.490077,1.000000]},
+	{ "name" : "monster_start", "position" :[-65.628395,12.020228,1.000000]},
+	{ "name" : "monster_start", "position" :[-65.628395,-16.355257,1.000000]},
+	{ "name" : "monster_start", "position" :[-38.588860,-38.188953,1.000000]},
+        { "name" : "monster_start", "position" :[-85.672379,42.084785,1.000000]},
+	{ "name" : "monster_start", "position" :[-85.672379,42.084785,1.000000]},
+	{ "name" : "monster_start", "position" :[-122.562103,4.485055,1.000000]},
+	{ "name" : "monster_start", "position" :[-101.958427,-27.603371,1.000000]},
+	{ "name" : "monster_start", "position" :[-108.594780,-25.093792,1.000000]},
+	{ "name" : "monster_start", "position" :[-104.691925,-38.679058,1.000000]},
+ 	{ "name" : "monster_start", "position" :[-128.319427,-38.679058,1.000000]},
+	{ "name" : "monster_start", "position" :[-145.641327,-24.638868,1.000000]},
+	{ "name" : "monster_start", "position" :[-157.407806,-6.815108,1.000000]}
     ]
 }
 }

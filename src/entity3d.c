@@ -345,13 +345,17 @@ int sj_value_as_vector3d(SJson *json,Vector3D *output)
 
 void level_spawn_entities(SJson *spawnList)
 {
-    int i = 0, count = 0;
+    int i = 0, count = 0, ent = 0;
     SJson *item;
     Vector3D position;
     int id = 0;
     count  = sj_array_get_count(spawnList);
+    //slog("moncount: %f ", count);
+    
     for (i = 0; i < count; i++)
     {
+//         ent += 1.0f;
+//          slog("moncount: %f ", ent);
         item = sj_array_get_nth(spawnList,i);
         if (!item)continue;
         sj_value_as_vector3d(sj_object_get_value(item,"position"),&position);
@@ -360,7 +364,12 @@ void level_spawn_entities(SJson *spawnList)
             id = 0;
         }
         spawn_entity(sj_get_string_value(sj_object_get_value(item,"name")),position,id,sj_object_get_value(item,"args"));
+        
     }
+    /*
+    slog("moncount: %f ", ent);
+    
+    return ent;*/
 }
 
 void *level_info_load(char *filename)
@@ -395,6 +404,8 @@ void *level_info_load(char *filename)
     sj_free(json);
     
     level_spawn_entities(spawnList);
+    
+    //slog("moncount: %f ", count);
     
     slog("loaded level info for %s",filename);
     return NULL;
